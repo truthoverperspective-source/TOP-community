@@ -3,9 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dr. Elena Rivera, LPC | Therapy in Niantic, CT</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; line-height: 1.6; color: #333; }
+        
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('https://source.unsplash.com/random/1600x900/?calm,waterfront') center/cover no-repeat;
+            color: white;
+            text-align: center;
+            padding: 180px 20px 120px;
+        }
+        
+        .hero h1 { font-size: 3.2rem; margin-bottom: 12px; }
+        .hero p { font-size: 1.35rem; max-width: 700px; margin: 0 auto 40px; }
+        
+        button {
+            background: #4A7043;
+            color: white;
+            padding: 16px 36px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        .section { padding: 80px 20px; max-width: 1000px; margin: 0 auto; text-align: center; }
+        
+        h2 { font-size: 2.4rem; margin-bottom: 20px; color: #1A3C5E; }
+        
+        .about, .approach, .services, .contact { background: #f8f9fa; }
+    </style>
 </head>
 <body>
-    
+
+    <!-- HERO -->
+    <section class="hero">
+        <h1>Dr. Elena Rivera, LPC</h1>
+        <p>Therapy in Niantic, CT</p>
+        <p>A safe, warm space for healing, growth, and real conversations.</p>
+        <button onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})">Schedule a Free Consultation</button>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="section about" id="about">
+        <h2>About Me</h2>
+        <p>I provide compassionate, trauma-informed therapy for individuals navigating anxiety, life transitions, and personal growth. My approach is collaborative and tailored to your unique needs.</p>
+    </section>
+
+    <!-- APPROACH -->
+    <section class="section approach">
+        <h2>My Approach</h2>
+        <p>I blend evidence-based practices like CBT and mindfulness with a deeply person-centered philosophy. Every session is a partnership built on trust and respect.</p>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section services">
+        <h2>Services</h2>
+        <p>Individual Therapy • Anxiety Support • Life Transitions • Trauma Recovery</p>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section contact" id="contact">
+        <h2>Get In Touch</h2>
+        <p>Ready to take the next step? I'm here to help.</p>
+        <button>Contact Me</button>
+    </section>
+
 </body>
 </html>
