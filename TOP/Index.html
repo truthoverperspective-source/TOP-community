@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Landing Page</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f172a;
+        --panel: #111827;
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, var(--bg), #1e293b);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0 32px;
+      }
+
+      .brand {
+        font-size: 1.25rem;
+        font-weight: bold;
+        letter-spacing: 0.04em;
+      }
+
+      nav a {
+        color: var(--text);
+        text-decoration: none;
+        margin-left: 16px;
+        opacity: 0.9;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 24px;
+        align-items: center;
+        padding: 32px 0 48px;
+      }
+
+      .hero h1 {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        margin: 0 0 12px;
+      }
+
+      .hero p {
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.7;
+        margin-bottom: 20px;
+      }
+
+      button {
+        background: var(--accent);
+        color: #082f49;
+        border: none;
+        padding: 12px 18px;
+        border-radius: 999px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .card {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 18px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .stat {
+        background: var(--panel);
+        padding: 14px;
+        border-radius: 14px;
+        text-align: center;
+      }
+
+      .stat strong { display: block; font-size: 1.2rem; }
+
+      .footer {
+        padding: 24px 0 8px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 760px) {
+        .hero { grid-template-columns: 1fr; }
+        .stats { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="brand">TOP Studio</div>
+        <nav>
+          <a href="#about">About</a>
+          <a href="#work">Work</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <div>
+          <h1>Build something bold.</h1>
+          <p>This is a simple landing page built with HTML, CSS, and a tiny bit of JavaScript to make it feel alive.</p>
+          <button id="ctaBtn">Click me</button>
+          <div class="stats">
+            <div class="stat"><strong id="time">--:--</strong>Current time</div>
+            <div class="stat"><strong>24/7</strong>Support</div>
+            <div class="stat"><strong>100%</strong>Creative</div>
+          </div>
+        </div>
+
+        <div class="card" id="about">
+          <h2>Welcome</h2>
+          <p>Use this page as a starter for your own project. It includes a responsive layout and a small interactive script.</p>
+          <p>Refresh the page and watch the button respond instantly.</p>
+        </div>
+      </section>
+
+      <div class="footer" id="contact">Created with HTML + CSS + JavaScript.</div>
+    </div>
+
+    <script>
+      const button = document.getElementById('ctaBtn');
+      const timeEl = document.getElementById('time');
+
+      button.addEventListener('click', () => {
+        button.textContent = 'You clicked it!';
+        button.style.transform = 'scale(1.04)';
+        setTimeout(() => {
+          button.textContent = 'Click me';
+          button.style.transform = 'scale(1)';
+        }, 1200);
+      });
+
+      function updateTime() {
+        const now = new Date();
+        timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+
+      updateTime();
+      setInterval(updateTime, 1000);
+    </script>
+  </body>
+</html>
