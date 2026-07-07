@@ -1,0 +1,23 @@
+/* Hero Section Background */
+
+.hero-bg {
+    background-image: linear-gradient(to right, rgba(26, 60, 94, 0.05), rgba(26, 60, 94, 0.15)),
+                url('hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Hero section end */
+
+
+
+/* ABOUT SECTION */
+.about-section {
+    background-image: linear-gradient(to right, 
+                     rgba(26, 60, 94, 0.05), 
+                     rgba(26, 60, 94, 0.15)), 
+                     url('aboutme backgraound.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
