@@ -10,68 +10,133 @@
         h1, h2, h3 { font-family: 'Playfair Display', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50">
 
     <!-- Login Form -->
-    <div id="login-form" class="min-h-screen flex items-center justify-center">
-        <div class="bg-white rounded-3xl shadow-xl p-10 w-full max-w-md">
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-[#0F4C81] text-white rounded-2xl text-3xl mb-4">🔑</div>
-                <h2 class="text-3xl font-bold text-[#0F4C81]">Welcome back</h2>
-                <p class="text-gray-500 mt-2">Sign in to your private member space</p>
+    <div id="login-form" class="min-h-screen flex items-center justify-center bg-slate-50">
+        <div class="bg-white rounded-3xl shadow-xl p-12 w-full max-w-md">
+            <div class="text-center mb-10">
+                <div class="mx-auto w-16 h-16 bg-[#0F4C81] text-white rounded-2xl flex items-center justify-center text-4xl mb-6">🔑</div>
+                <h2 class="text-4xl font-bold text-[#0F4C81]">Welcome back</h2>
+                <p class="text-slate-600 mt-3 text-lg">Sign in to your private space</p>
             </div>
 
-            <div class="space-y-5">
+            <div class="space-y-6">
                 <input type="email" id="login-email" placeholder="Email address" 
-                       class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-[#0F4C81]">
+                       class="w-full px-6 py-5 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg">
                 
                 <input type="password" id="login-password" placeholder="Password" 
-                       class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-[#0F4C81]">
+                       class="w-full px-6 py-5 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg">
                 
                 <button onclick="handleLogin()" 
-                        class="w-full bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-5 rounded-2xl font-semibold text-lg transition">
+                        class="w-full bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-6 rounded-2xl font-semibold text-xl transition">
                     Sign In
                 </button>
             </div>
 
-            <p class="text-center text-gray-500 text-sm mt-6">
+            <p class="text-center text-slate-500 mt-8">
                 Don't have an account? 
                 <a href="index.html" class="text-[#0F4C81] font-medium hover:underline">Get Started</a>
             </p>
         </div>
     </div>
 
-    <!-- Dashboard Content (hidden until login) -->
+    <!-- Dashboard -->
     <div id="dashboard-content" class="hidden">
-        <!-- Sidebar + Main Content will go here -->
         <div class="flex h-screen">
+            <!-- Sidebar -->
             <div class="w-64 bg-[#0F4C81] text-white flex flex-col">
-                <div class="p-6 border-b border-white/20">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white text-[#0F4C81] rounded-full flex items-center justify-center font-bold">ER</div>
+                <div class="p-8 border-b border-white/20">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white text-[#0F4C81] rounded-2xl flex items-center justify-center font-bold text-2xl">ER</div>
                         <div>
-                            <span class="font-semibold">Dr. Elena Rivera</span>
-                            <span class="text-xs block opacity-75">Member Dashboard</span>
+                            <div class="font-semibold text-xl">Dr. Elena Rivera</div>
+                            <div class="text-xs opacity-75">Member Space</div>
                         </div>
                     </div>
                 </div>
                 
-                <nav class="flex-1 p-4 space-y-1">
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 font-medium">📝 My Notes</a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition">✅ Progress</a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition">📋 Checklists</a>
+                <nav class="flex-1 p-6 space-y-1">
+                    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl bg-white/10 font-medium">📝 My Notes</a>
+                    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📖 Journal</a>
+                    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📈 Progress</a>
+                    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🎯 Goals</a>
+                    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🌱 Reflections</a>
+                    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📚 Resources</a>
+                    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">⚙️ Settings</a>
                 </nav>
                 
-                <div class="p-4 border-t border-white/20">
-                    <button onclick="logout()" class="w-full py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition">
-                        Logout
+                <div class="p-6 border-t border-white/20">
+                    <button onclick="logout()" class="w-full py-4 text-white/80 hover:text-white hover:bg-white/10 rounded-2xl transition">
+                        Sign Out
                     </button>
                 </div>
             </div>
 
-            <div class="flex-1 p-8">
-                <h1 class="text-4xl font-bold text-[#0F4C81]">Welcome back</h1>
-                <p class="text-gray-600 mt-4">Your private member dashboard is ready.</p>
+            <!-- Main Content -->
+            <div class="flex-1 p-10 overflow-auto">
+                <div class="max-w-5xl mx-auto">
+                    <h1 class="text-5xl font-bold text-[#0F4C81]">Good afternoon, Jacob</h1>
+                    <p class="text-xl text-slate-600 mt-2">Here's your private space to keep growing.</p>
+
+                    <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Recent Notes -->
+                        <div class="bg-white rounded-3xl p-8">
+                            <h2 class="text-2xl font-semibold mb-6">Recent Notes</h2>
+                            <div class="space-y-6">
+                                <div class="border-l-4 border-[#0F4C81] pl-4">
+                                    <div class="text-sm text-slate-500">July 8 • Anxiety & Boundaries</div>
+                                    <p class="mt-2">"I noticed I feel guilty when I say no..."</p>
+                                </div>
+                                <div class="border-l-4 border-[#0F4C81] pl-4">
+                                    <div class="text-sm text-slate-500">July 6 • Self Worth</div>
+                                    <p class="mt-2">"What does it actually mean to feel enough?"</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Snapshot -->
+                        <div class="bg-white rounded-3xl p-8">
+                            <h2 class="text-2xl font-semibold mb-6">Progress Snapshot</h2>
+                            <div class="space-y-8">
+                                <div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium">Anxiety Management</span>
+                                        <span class="font-semibold text-emerald-600">78%</span>
+                                    </div>
+                                    <div class="h-2.5 bg-slate-100 rounded-full">
+                                        <div class="h-2.5 bg-emerald-500 rounded-full w-[78%]"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium">Boundary Setting</span>
+                                        <span class="font-semibold text-emerald-600">45%</span>
+                                    </div>
+                                    <div class="h-2.5 bg-slate-100 rounded-full">
+                                        <div class="h-2.5 bg-emerald-500 rounded-full w-[45%]"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Today's Prompts -->
+                    <div class="mt-10 bg-white rounded-3xl p-8">
+                        <h2 class="text-2xl font-semibold mb-6">Today's Prompts</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="border border-slate-100 rounded-2xl p-6 hover:border-[#0F4C81] cursor-pointer transition">
+                                What drained your energy this week?
+                            </div>
+                            <div class="border border-slate-100 rounded-2xl p-6 hover:border-[#0F4C81] cursor-pointer transition">
+                                What are you proud of right now?
+                            </div>
+                            <div class="border border-slate-100 rounded-2xl p-6 hover:border-[#0F4C81] cursor-pointer transition">
+                                What do you need more of?
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

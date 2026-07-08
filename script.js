@@ -75,3 +75,16 @@ async function handleLogin() {
         alert("Login failed: " + error.message);
     }
 }
+
+// Allow pressing Enter in password field to login
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordField = document.getElementById('login-password');
+    
+    if (passwordField) {
+        passwordField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    }
+});
