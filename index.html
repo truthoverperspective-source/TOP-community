@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap');
+        
         body { font-family: 'Inter', system-ui, sans-serif; }
         h1, h2 { font-family: 'Playfair Display', sans-serif; }
         html { scroll-behavior: smooth; }
@@ -30,6 +31,7 @@
                 <a href="#" class="hover:text-emerald-600 transition">Today's Latest</a>
                 <a href="#about" class="hover:text-emerald-600 transition">About</a>
                 <a href="#services" class="hover:text-emerald-600 transition">Services</a>
+                <a href="#insurance" class="hover:text-emerald-600 transition">Accepted Insurance</a>
                 <a href="#testimonials" class="hover:text-emerald-600 transition">Testimonials</a>
                 <a href="#contact" class="hover:text-emerald-600 transition">Contact</a>
             </nav>
@@ -52,25 +54,26 @@
             </p>
             
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="#contact" class="bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-5 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                    Request a consultation →
-                </a>
-                <a href="#services" class="border-2 border-white hover:bg-white hover:text-slate-800 text-white px-10 py-5 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                    Explore services
-                </a>
-            </div>
+    <a href="#" 
+       class="bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-5 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+        Get Started
+    </a>
+    
+   <a href="dashboard.html" 
+   class="border-2 border-white hover:bg-white hover:text-slate-800 text-white px-10 py-5 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+    Sign in
+</a>
+</div>
             
             <p class="mt-8 text-sm opacity-75">
-                Private-pay telehealth and in-person availability by appointment.
+                Now accepting new clients for in-person and telehealth appointments.
             </p>
         </div>
     </section>
 
-    <!-- ABOUT SECTION (UNTOUCHED - exactly as you had it) -->
+    <!-- ABOUT SECTION -->
     <section id="about" class="about-section relative" style="min-height: 100vh; padding: 0; margin: 0;">
         <div style="position: relative; height: 100vh; width: 100%;">
-
-            <!-- Text -->
             <div style="position: absolute; top: 15%; left: 8%; max-width: 500px; z-index: 10; background: rgba(0,0,0,0.65); padding: 40px; border-radius: 20px;">
                 <h2 class="text-5xl font-bold text-white mb-8">About</h2>
                 <div class="space-y-6 text-lg leading-relaxed text-white">
@@ -80,11 +83,29 @@
                 </div>
             </div>
 
-            <!-- Headshot - Pinned to Bottom -->
             <div style="position: absolute; bottom: 0; right: 8%; z-index: 5;">
-                <img src="final_headshot.png" 
-                     alt="Dr. Elena Rivera, LPC" 
-                     class="w-full max-w-lg rounded-3xl shadow-2xl">
+                <img src="final_headshot.png" alt="Dr. Elena Rivera, LPC" class="w-full max-w-lg rounded-3xl shadow-2xl">
+            </div>
+        </div>
+    </section>
+
+    <!-- ACCEPTED INSURANCE -->
+    <section id="insurance" class="py-24 bg-white">
+        <div class="max-w-4xl mx-auto px-6">
+            <h2 class="text-5xl font-bold text-[#1A3C5E] text-center mb-12">Accepted Insurance</h2>
+            <div class="bg-white rounded-3xl p-12 shadow-sm">
+                <p class="text-lg text-gray-600 mb-10 text-center">I am currently accepting the following insurance plans:</p>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-x-12 gap-y-6 text-center text-lg">
+                    <div class="font-medium text-slate-700">• Blue Cross Blue Shield</div>
+                    <div class="font-medium text-slate-700">• Aetna</div>
+                    <div class="font-medium text-slate-700">• Cigna</div>
+                    <div class="font-medium text-slate-700">• UnitedHealthcare</div>
+                    <div class="font-medium text-slate-700">• Anthem</div>
+                    <div class="font-medium text-slate-700">• Medicare</div>
+                </div>
+                <div class="mt-12 text-center border-t pt-8">
+                    <p class="text-emerald-700 font-medium">Not sure if your plan is accepted? Contact me and I'll verify your benefits.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -109,7 +130,7 @@
             </div>
         </div>
     </section>
-    
+
     <!-- SERVICES -->
     <section id="services" class="py-24 bg-[#F5F0E6]">
         <div class="max-w-6xl mx-auto px-6">
@@ -137,12 +158,6 @@
                     <p class="text-gray-600 mb-6">Extended deep-dive sessions for those seeking accelerated progress and breakthrough work.</p>
                     <p class="font-medium text-emerald-700">Available upon request</p>
                 </div>
-            </div>
-
-            <div class="text-center mt-12">
-                <a href="#contact" class="inline-block bg-emerald-600 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-emerald-700 transition">
-                    Book a Consultation →
-                </a>
             </div>
         </div>
     </section>
@@ -179,34 +194,32 @@
                 </div>
 
                 <div class="bg-gray-50 p-10 rounded-3xl">
-                    <form class="space-y-6">
+                    <form action="https://formspree.io/f/xrewvlgr" method="POST" class="space-y-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                            <input type="text" class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500">
+                            <input type="text" name="name" class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                            <input type="email" class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500">
+                            <input type="email" name="email" class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                            <textarea rows="5" class="w-full px-5 py-4 border border-gray-200 rounded-3xl focus:outline-none focus:border-emerald-500"></textarea>
+                            <textarea name="message" rows="5" class="w-full px-5 py-4 border border-gray-200 rounded-3xl focus:outline-none focus:border-emerald-500" required></textarea>
                         </div>
-                       <button onclick="submitContactForm()" 
-                        class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-semibold text-lg hover:bg-emerald-700 transition">
-                         Send Message
+                        <button type="submit" class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-semibold text-lg hover:bg-emerald-700 transition">
+                            Send Message
                         </button>
                     </form>
                 </div>
             </div>
         </div>
     </section>
+
     <!-- FOOTER -->
     <footer class="bg-[#1A3C5E] text-white py-16">
         <div class="max-w-6xl mx-auto px-6">
             <div class="grid md:grid-cols-3 gap-12">
-                
-                <!-- Left Column -->
                 <div>
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold text-xl">ER</div>
@@ -216,19 +229,16 @@
                     </div>
                     <p class="text-white/70">Compassionate, evidence-informed therapy in Niantic, CT.</p>
                 </div>
-
-                <!-- Middle Column -->
                 <div>
                     <h4 class="font-semibold mb-6">Quick Links</h4>
                     <div class="flex flex-col gap-3 text-white/70">
                         <a href="#about" class="hover:text-white transition">About</a>
                         <a href="#services" class="hover:text-white transition">Services</a>
+                        <a href="#insurance" class="hover:text-white transition">Accepted Insurance</a>
                         <a href="#testimonials" class="hover:text-white transition">Testimonials</a>
                         <a href="#contact" class="hover:text-white transition">Contact</a>
                     </div>
                 </div>
-
-                <!-- Right Column -->
                 <div>
                     <h4 class="font-semibold mb-6">Get In Touch</h4>
                     <div class="space-y-3 text-white/70">
@@ -238,65 +248,32 @@
                     </div>
                 </div>
             </div>
-
             <div class="text-center text-white/50 text-sm mt-16 pt-8 border-t border-white/20">
                 © 2026 Dr. Elena Rivera, LPC. All rights reserved.
             </div>
         </div>
     </footer>
-<script>
-function submitContactForm() {
-    const name = document.querySelector('input[placeholder="Name"]').value || document.querySelector('input[type="text"]').value;
-    const email = document.querySelector('input[type="email"]').value;
-    const message = document.querySelector('textarea').value;
 
-    if (!name || !email || !message) {
-        alert("Please fill out all fields.");
-        return;
-    }
-
-    // Demo mode - will be replaced with real EmailJS later
-    alert(`Thank you, ${name}! Your message has been received.\n\n(Real version will send to your email)`);
+<!-- Simple Sign Up Form (for testing) -->
+<div class="max-w-md mx-auto mt-12 p-8 bg-white rounded-3xl shadow-sm border">
+    <h3 class="text-2xl font-semibold mb-6 text-center">Create Premium Account</h3>
     
-    // Clear form
-    document.querySelector('form').reset();
-}
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>
-    (function() {
-        emailjs.init({
-            publicKey: "-luNdrEHYcH3jzeja",
-        });
-    })();
-
-    function submitContactForm() {
-        const name = document.querySelector('input[type="text"]').value;
-        const email = document.querySelector('input[type="email"]').value;
-        const message = document.querySelector('textarea').value;
-
-        if (!name || !email || !message) {
-            alert("Please fill out all fields.");
-            return;
-        }
-
-        const templateParams = {
-            name: name,
-            email: email,
-            message: message
-        };
-
-        emailjs.send('service_lzc9t5r', 'template_9urqrwt', templateParams)
-            .then(() => {
-                alert("Thank you! Your message has been sent.");
-                document.querySelector('form').reset();
-            })
-            .catch((error) => {
-                alert("Something went wrong. Please try again.");
-                console.error(error);
-            });
-    }
-</script>
+    <div class="space-y-4">
+        <input type="email" id="signup-email" placeholder="Email address" 
+               class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500">
+        
+        <input type="password" id="signup-password" placeholder="Password" 
+               class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500">
+        
+        <button onclick="handleSignUp()" 
+                class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-semibold hover:bg-emerald-700">
+            Create Account
+        </button>
+    </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

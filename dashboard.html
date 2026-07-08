@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Area | Dr. Elena Rivera, LPC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        h1, h2, h3 { font-family: 'Playfair Display', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+    <!-- Login Form -->
+    <div id="login-form" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-xl p-10 w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-[#0F4C81] text-white rounded-2xl text-3xl mb-4">🔑</div>
+                <h2 class="text-3xl font-bold text-[#0F4C81]">Welcome back</h2>
+                <p class="text-gray-500 mt-2">Sign in to your private member space</p>
+            </div>
+
+            <div class="space-y-5">
+                <input type="email" id="login-email" placeholder="Email address" 
+                       class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-[#0F4C81]">
+                
+                <input type="password" id="login-password" placeholder="Password" 
+                       class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-[#0F4C81]">
+                
+                <button onclick="handleLogin()" 
+                        class="w-full bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-5 rounded-2xl font-semibold text-lg transition">
+                    Sign In
+                </button>
+            </div>
+
+            <p class="text-center text-gray-500 text-sm mt-6">
+                Don't have an account? 
+                <a href="index.html" class="text-[#0F4C81] font-medium hover:underline">Get Started</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard Content (hidden until login) -->
+    <div id="dashboard-content" class="hidden">
+        <!-- Sidebar + Main Content will go here -->
+        <div class="flex h-screen">
+            <div class="w-64 bg-[#0F4C81] text-white flex flex-col">
+                <div class="p-6 border-b border-white/20">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white text-[#0F4C81] rounded-full flex items-center justify-center font-bold">ER</div>
+                        <div>
+                            <span class="font-semibold">Dr. Elena Rivera</span>
+                            <span class="text-xs block opacity-75">Member Dashboard</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav class="flex-1 p-4 space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 font-medium">📝 My Notes</a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition">✅ Progress</a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition">📋 Checklists</a>
+                </nav>
+                
+                <div class="p-4 border-t border-white/20">
+                    <button onclick="logout()" class="w-full py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition">
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 p-8">
+                <h1 class="text-4xl font-bold text-[#0F4C81]">Welcome back</h1>
+                <p class="text-gray-600 mt-4">Your private member dashboard is ready.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
