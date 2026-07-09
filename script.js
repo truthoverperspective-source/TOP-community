@@ -88,3 +88,64 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Switch between dashboard sections
+function showSection(section) {
+    // Hide all sections
+    document.querySelectorAll('.dashboard-section').forEach(s => {
+        s.classList.add('hidden');
+    });
+    
+    // Show the selected section
+    const target = document.getElementById(section + '-section');
+    if (target) {
+        target.classList.remove('hidden');
+    }
+}
+
+function openJournalNotebook() {
+    alert("Journal notebook opened! (We'll add the actual editor + toolbar here next)");
+    // Future: open full writing modal or switch to rich text editor
+}
+
+function saveJournal() { alert("Entry saved!"); }
+function submitJournal() { alert("Entry submitted to therapist!"); }
+function customizeJournal() { alert("Customization options coming soon"); }
+function goBackToDashboard() {
+    // Hide journal, show main dashboard content
+    document.getElementById('journal-content').classList.add('hidden');
+    // Show your default dashboard panels again
+}
+
+// === DASHBOARD TAB SWITCHING ===
+function showJournal() {
+    document.getElementById('default-dashboard').classList.add('hidden');
+    document.getElementById('journal-content').classList.remove('hidden');
+}
+
+function goBackToDashboard() {
+    document.getElementById('journal-content').classList.add('hidden');
+    document.getElementById('default-dashboard').classList.remove('hidden');
+}
+
+function showDefaultDashboard() {
+    document.getElementById('journal-content').classList.add('hidden');
+    document.getElementById('default-dashboard').classList.remove('hidden');
+}
+
+// Journal functions
+function openJournalNotebook() {
+    alert("📝 Journal opened!\n\nWe'll build the actual writing area + toolbar next.");
+}
+
+function saveJournal() { 
+    alert("✅ Entry saved."); 
+}
+
+function submitJournal() { 
+    alert("📤 Entry submitted to therapist."); 
+}
+
+function customizeJournal() { 
+    alert("🎨 Customization coming soon."); 
+}
