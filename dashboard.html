@@ -8,6 +8,8 @@
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
         h1, h2, h3 { font-family: 'Playfair Display', sans-serif; }
+        .entry-list::-webkit-scrollbar { width: 6px; }
+        .entry-list::-webkit-scrollbar-thumb { background: rgba(146, 64, 14, 0.3); border-radius: 3px; }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -48,37 +50,35 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Replace your entire <nav> section inside the sidebar with this: -->
 
-<nav class="flex-1 p-6 space-y-1">
-    <a href="#" onclick="showDefaultDashboard()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📝 My Notes</a>
-    
-    <!-- Journal with Dropdown -->
-    <div class="relative group">
-        <a href="#" onclick="showJournal()" 
-           class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">
-            📖 Journal
-        </a>
-        
-        <!-- Dropdown Menu -->
-        <div class="absolute left-full top-0 ml-2 hidden group-hover:block bg-white text-slate-700 shadow-xl rounded-2xl py-2 w-56 z-50 border border-slate-100">
-            <a href="#" onclick="showPrompts()" class="block px-6 py-3 hover:bg-slate-100">Prompts</a>
-            <a href="#" onclick="showBookshelf()" class="block px-6 py-3 hover:bg-slate-100">Bookshelf</a>
-            <div class="border-t my-1"></div>
-            <a href="#" onclick="saveJournal()" class="block px-6 py-3 hover:bg-slate-100 text-emerald-600">💾 Save</a>
-            <a href="#" onclick="submitJournal()" class="block px-6 py-3 hover:bg-slate-100 text-[#0F4C81]">📤 Submit</a>
-            <a href="#" onclick="customizeJournal()" class="block px-6 py-3 hover:bg-slate-100">🎨 Customize</a>
-        </div>
-    </div>
+            <nav class="flex-1 p-6 space-y-1">
+                <a href="#" onclick="showDefaultDashboard()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📝 My Notes</a>
 
-    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📈 Progress</a>
-    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🎯 Goals</a>
-    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🌱 Reflections</a>
-    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📚 Resources</a>
-    <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">⚙️ Settings</a>
-</nav>
-            
+                <!-- Journal with Dropdown -->
+                <div class="relative group">
+                    <a href="#" onclick="showJournal()" 
+                       class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">
+                        📖 Journal
+                    </a>
+
+                    <!-- Dropdown Menu -->
+                    <div class="absolute left-full top-0 ml-2 hidden group-hover:block bg-white text-slate-700 shadow-xl rounded-2xl py-2 w-56 z-50 border border-slate-100">
+                        <a href="#" onclick="showPrompts()" class="block px-6 py-3 hover:bg-slate-100">Prompts</a>
+                        <a href="#" onclick="showBookshelf()" class="block px-6 py-3 hover:bg-slate-100">Bookshelf</a>
+                        <div class="border-t my-1"></div>
+                        <a href="#" onclick="saveJournal()" class="block px-6 py-3 hover:bg-slate-100 text-emerald-600">💾 Save</a>
+                        <a href="#" onclick="submitJournal()" class="block px-6 py-3 hover:bg-slate-100 text-[#0F4C81]">📤 Submit</a>
+                        <a href="#" onclick="customizeJournal()" class="block px-6 py-3 hover:bg-slate-100">🎨 Customize</a>
+                    </div>
+                </div>
+
+                <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📈 Progress</a>
+                <a href="#" onclick="showGoals()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🎯 Goals</a>
+                <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🌱 Reflections</a>
+                <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📚 Resources</a>
+                <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">⚙️ Settings</a>
+            </nav>
+
             <div class="p-6 border-t border-white/20">
                 <button onclick="logout()" class="w-full py-4 text-white/80 hover:text-white hover:bg-white/10 rounded-2xl transition">Sign Out</button>
             </div>
@@ -193,8 +193,9 @@
 
                     <!-- MAIN JOURNAL AREA -->
                     <div class="flex-1 flex flex-col">
+
+                        <!-- Closed notebook (click to open) -->
                         <div id="notebook-container" class="flex-1 bg-[#F5F0E6] rounded-3xl shadow-inner border border-amber-900/20 p-8 relative overflow-hidden cursor-pointer" onclick="openJournalNotebook()">
-                            <div class="absolute inset-0 bg-cover bg-center opacity-90" style="background-image: url('preview-image.png');"></div>
                             <div class="relative z-10 h-full flex items-center justify-center">
                                 <img src="myj.png" alt="Jacob's Journal" class="max-h-[92%] max-w-[92%] object-contain">
                             </div>
@@ -202,40 +203,160 @@
                                 Click the notebook to start writing
                             </div>
                         </div>
+
+                        <!-- Open notebook: left page = table of contents, right page = writing area -->
+                        <div id="open-notebook" class="hidden flex-1 rounded-3xl shadow-inner border border-amber-900/20 relative overflow-hidden bg-[#F5F0E6]">
+
+                            <!-- Open book image as background -->
+                            <img src="openbook.png" alt="Open Journal" class="absolute inset-0 w-full h-full object-contain pointer-events-none">
+
+                            <!-- Content layered on the two pages -->
+                            <div class="relative z-20 h-full flex">
+
+                                <!-- LEFT PAGE: Table of Contents -->
+                                <div class="w-1/2 h-full flex flex-col py-[7%] pl-[13%] pr-[7%]">
+                                    <h3 class="text-lg font-bold text-amber-900/80 mb-3 tracking-wide" style="font-family: 'Playfair Display', serif;">Table of Contents</h3>
+
+                                    <!-- Entry list (populated by JavaScript) -->
+                                    <div id="entry-list" class="entry-list flex-1 overflow-y-auto space-y-1 pr-2">
+                                        <div class="text-sm text-amber-800/50 italic">No entries yet. Click + to start.</div>
+                                    </div>
+
+                                    <!-- Add new entry button -->
+                                    <button onclick="openNewEntryModal()" class="mt-3 self-start w-9 h-9 bg-amber-800/80 hover:bg-amber-800 text-white rounded-full text-lg font-bold shadow transition flex items-center justify-center">+</button>
+                                </div>
+
+                                <!-- RIGHT PAGE: Writing area -->
+                                <div class="w-1/2 h-full flex flex-col py-[7%] pl-[7%] pr-[13%]">
+                                    <div id="current-entry-title" class="text-base font-semibold text-amber-900/80 mb-2" style="font-family: 'Playfair Display', serif;">Select or create an entry</div>
+                                    <textarea id="journal-textarea"
+                                        placeholder="Start writing..."
+                                        class="flex-1 bg-transparent resize-none focus:outline-none text-slate-800 text-base leading-7"
+                                        style="font-family: 'Georgia', serif;"
+                                        disabled></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Close button -->
+                            <button onclick="closeJournalNotebook()"
+                                class="absolute top-4 right-4 z-30 bg-white/80 hover:bg-white text-slate-700 px-4 py-2 rounded-xl text-sm font-medium shadow transition">
+                                ✕ Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- New Entry Modal (hidden by default) -->
+    <div id="new-entry-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md mx-4">
+            <h3 class="text-2xl font-bold text-[#0F4C81] mb-6">Name your entry</h3>
+            <input type="text" id="new-entry-name" placeholder="e.g. Homework, Daily reflection..."
+                class="w-full px-6 py-4 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg mb-6">
+            <div class="flex gap-3">
+                <button onclick="closeNewEntryModal()" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-700 py-4 rounded-2xl font-medium transition">Cancel</button>
+                <button onclick="createNewEntry()" class="flex-1 bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-4 rounded-2xl font-medium transition">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goals Content -->
+            <div id="goals-content" class="hidden h-full flex flex-col max-w-7xl mx-auto">
+
+                <!-- Four Quadrants -->
+                <div class="flex-1 grid grid-cols-2 gap-6 min-h-0">
+
+                    <!-- CHECKLIST -->
+                    <div class="bg-white rounded-3xl p-8 flex flex-col overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-semibold text-[#0F4C81]">✅ Checklist</h2>
+                            <button onclick="openAddItemModal('checklist')" class="w-9 h-9 bg-[#0F4C81] hover:bg-[#0A3D68] text-white rounded-full text-lg font-bold shadow transition">+</button>
+                        </div>
+                        <div id="checklist-items" class="flex-1 overflow-y-auto space-y-2">
+                            <div class="text-sm text-slate-400 italic">No items yet. Click + to add.</div>
+                        </div>
+                    </div>
+
+                    <!-- HEALTH HABITS -->
+                    <div class="bg-white rounded-3xl p-8 flex flex-col overflow-hidden">
+                        <h2 class="text-2xl font-semibold text-[#0F4C81] mb-4">💪 Health Habits</h2>
+                        <div class="flex-1 space-y-3">
+                            <button id="habit-btn-sleep" onclick="openSurvey('sleep')" class="habit-btn w-full text-left px-6 py-4 rounded-2xl border-2 border-slate-200 hover:border-[#0F4C81] font-medium transition">😴 Sleep</button>
+                            <button id="habit-btn-nutrition" onclick="openSurvey('nutrition')" class="habit-btn w-full text-left px-6 py-4 rounded-2xl border-2 border-slate-200 hover:border-[#0F4C81] font-medium transition">🥗 Diet / Nutrition</button>
+                            <button id="habit-btn-exercise" onclick="openSurvey('exercise')" class="habit-btn w-full text-left px-6 py-4 rounded-2xl border-2 border-slate-200 hover:border-[#0F4C81] font-medium transition">🏃 Exercise</button>
+                            <button id="habit-btn-social" onclick="openSurvey('social')" class="habit-btn w-full text-left px-6 py-4 rounded-2xl border-2 border-slate-200 hover:border-[#0F4C81] font-medium transition">👥 Social Connections</button>
+                            <button id="habit-btn-mindset" onclick="openSurvey('mindset')" class="habit-btn w-full text-left px-6 py-4 rounded-2xl border-2 border-slate-200 hover:border-[#0F4C81] font-medium transition">🧠 Mindset</button>
+                        </div>
+                    </div>
+
+                    <!-- GOALS -->
+                    <div class="bg-white rounded-3xl p-8 flex flex-col overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-semibold text-[#0F4C81]">🎯 Goals</h2>
+                            <button onclick="openAddItemModal('goal')" class="w-9 h-9 bg-[#0F4C81] hover:bg-[#0A3D68] text-white rounded-full text-lg font-bold shadow transition">+</button>
+                        </div>
+                        <ul id="goals-items" class="flex-1 overflow-y-auto space-y-3 list-disc list-inside text-slate-700">
+                            <div class="text-sm text-slate-400 italic">No goals yet. Click + to add.</div>
+                        </ul>
+                    </div>
+
+                    <!-- MOOD TRACKER -->
+                    <div class="bg-white rounded-3xl p-8 flex flex-col overflow-hidden">
+                        <h2 class="text-2xl font-semibold text-[#0F4C81] mb-4">🙂 Mood Tracker</h2>
+                        <div class="flex-1 flex items-center justify-center gap-6 text-6xl">
+                            <span class="cursor-pointer hover:scale-125 transition">😄</span>
+                            <span class="cursor-pointer hover:scale-125 transition">🙂</span>
+                            <span class="cursor-pointer hover:scale-125 transition">😐</span>
+                            <span class="cursor-pointer hover:scale-125 transition">😟</span>
+                            <span class="cursor-pointer hover:scale-125 transition">😠</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MOTIVATIONAL QUOTE BAR -->
+                <div class="mt-6 bg-[#0F4C81] text-white rounded-3xl px-8 py-5 text-center text-lg font-medium">
+                    💬 "Small steps every day add up to big change." <span class="opacity-60 text-sm ml-2">— Quote of the Day</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal (checklist & goals) -->
+    <div id="add-item-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md mx-4">
+            <h3 id="add-item-title" class="text-2xl font-bold text-[#0F4C81] mb-6">Add item</h3>
+            <input type="text" id="add-item-input" placeholder="Type here..."
+                class="w-full px-6 py-4 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg mb-6">
+            <div class="flex gap-3">
+                <button onclick="closeAddItemModal()" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-700 py-4 rounded-2xl font-medium transition">Cancel</button>
+                <button onclick="confirmAddItem()" class="flex-1 bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-4 rounded-2xl font-medium transition">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Survey Modal -->
+    <div id="survey-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-lg mx-4">
+            <h3 id="survey-title" class="text-2xl font-bold text-[#0F4C81] mb-6">Survey</h3>
+            <div id="survey-questions" class="space-y-6 mb-8 max-h-[50vh] overflow-y-auto"></div>
+            <div class="flex gap-3">
+                <button onclick="closeSurvey()" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-700 py-4 rounded-2xl font-medium transition">Cancel</button>
+                <button onclick="submitSurvey()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-medium transition">Complete ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Entry Modal (hidden by default) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="script.js"></script>
 
-    <script>
-        function showJournal() {
-            document.getElementById('default-dashboard').classList.add('hidden');
-            document.getElementById('journal-content').classList.remove('hidden');
-        }
-
-        function goBackToDashboard() {
-            document.getElementById('journal-content').classList.add('hidden');
-            document.getElementById('default-dashboard').classList.remove('hidden');
-        }
-
-        function showDefaultDashboard() {
-            document.getElementById('journal-content').classList.add('hidden');
-            document.getElementById('default-dashboard').classList.remove('hidden');
-        }
-
-        function openJournalNotebook() {
-            alert("📝 Journal opened!");
-        }
-
-        function saveJournal() { alert("✅ Entry saved."); }
-        function submitJournal() { alert("📤 Submitted to therapist."); }
-        function customizeJournal() { alert("🎨 Customization coming soon."); }
-    </script>
 </body>
 </html>
