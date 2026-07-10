@@ -246,25 +246,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- New Entry Modal (hidden by default) -->
-    <div id="new-entry-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md mx-4">
-            <h3 class="text-2xl font-bold text-[#0F4C81] mb-6">Name your entry</h3>
-            <input type="text" id="new-entry-name" placeholder="e.g. Homework, Daily reflection..."
-                class="w-full px-6 py-4 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg mb-6">
-            <div class="flex gap-3">
-                <button onclick="closeNewEntryModal()" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-700 py-4 rounded-2xl font-medium transition">Cancel</button>
-                <button onclick="createNewEntry()" class="flex-1 bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-4 rounded-2xl font-medium transition">Create</button>
-            </div>
-        </div>
-    </div>
-</div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Goals Content -->
             <div id="goals-content" class="hidden h-full flex flex-col max-w-7xl mx-auto">
@@ -353,6 +334,18 @@
     </div>
 
     <!-- New Entry Modal (hidden by default) -->
+    <div id="new-entry-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md mx-4">
+            <h3 class="text-2xl font-bold text-[#0F4C81] mb-6">Name your entry</h3>
+            <input type="text" id="new-entry-name" placeholder="e.g. Homework, Daily reflection..."
+                class="w-full px-6 py-4 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg mb-6">
+            <div class="flex gap-3">
+                <button onclick="closeNewEntryModal()" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-700 py-4 rounded-2xl font-medium transition">Cancel</button>
+                <button onclick="createNewEntry()" class="flex-1 bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-4 rounded-2xl font-medium transition">Create</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
