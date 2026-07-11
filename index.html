@@ -54,10 +54,10 @@
             </p>
             
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-    <a href="#" 
-       class="bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-5 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-        Get Started
-    </a>
+    <button onclick="showSignUpModal()" 
+        class="bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-5 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+    Get Started
+</button>
     
    <a href="dashboard.html" 
    class="border-2 border-white hover:bg-white hover:text-slate-800 text-white px-10 py-5 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -254,23 +254,86 @@
         </div>
     </footer>
 
-<!-- Simple Sign Up Form (for testing) -->
-<div class="max-w-md mx-auto mt-12 p-8 bg-white rounded-3xl shadow-sm border">
-    <h3 class="text-2xl font-semibold mb-6 text-center">Create Premium Account</h3>
-    
-    <div class="space-y-4">
-        <input type="email" id="signup-email" placeholder="Email address" 
-               class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500">
+    <!-- TODAY'S LATEST / TRAUMA DEVELOPMENTS -->
+<section id="todays-latest" class="py-24 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-5xl font-bold text-[#1A3C5E] mb-4">Latest Developments: Trauma</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Curated, easy-to-read summaries of the newest peer-reviewed trauma research.
+            </p>
+                <div id="latest-content" class="space-y-12">
+            
+            <article class="border-l-4 border-emerald-600 pl-6">
+                <h3 class="text-2xl font-semibold text-[#1A3C5E] mb-3">Effects of Early Intervention on PTSD Symptoms in Veterans</h3>
+                <p class="text-gray-600 mb-2">A new study published in the Journal of Traumatic Stress found that veterans who received trauma-focused therapy within the first 30 days after a traumatic event showed significantly lower PTSD symptom severity at 6-month follow-up.</p>
+                <p class="text-gray-600 mb-2">The research highlighted the importance of rapid access to care and suggested that early intervention may prevent the chronicity of trauma responses.</p>
+                <p class="text-gray-600">These findings support expanding same-week therapy options for first responders and military personnel.</p>
+                <div class="text-sm text-slate-500 mt-4">PubMed • July 9, 2026</div>
+            </article>
+
+            <article class="border-l-4 border-emerald-600 pl-6">
+                <h3 class="text-2xl font-semibold text-[#1A3C5E] mb-3">EMDR vs. Prolonged Exposure: Long-term Outcomes in Complex Trauma</h3>
+                <p class="text-gray-600 mb-2">Researchers compared Eye Movement Desensitization and Reprocessing (EMDR) with Prolonged Exposure therapy in patients with complex trauma histories.</p>
+                <p class="text-gray-600 mb-2">Both treatments were effective, but EMDR showed faster symptom reduction and better retention rates.</p>
+                <p class="text-gray-600">The study suggests tailoring treatment choice based on patient preference and dissociation levels.</p>
+                <div class="text-sm text-slate-500 mt-4">PubMed • July 8, 2026</div>
+            </article>
+
+            <article class="border-l-4 border-emerald-600 pl-6">
+                <h3 class="text-2xl font-semibold text-[#1A3C5E] mb-3">The Role of Sleep Quality in Trauma Recovery</h3>
+                <p class="text-gray-600 mb-2">Poor sleep in the weeks following trauma was associated with higher risk of developing chronic PTSD according to a large longitudinal study.</p>
+                <p class="text-gray-600 mb-2">Interventions targeting sleep hygiene alongside therapy showed promising results in improving overall recovery.</p>
+                <p class="text-gray-600">Clinicians are encouraged to screen for and address sleep disturbances early in treatment.</p>
+                <div class="text-sm text-slate-500 mt-4">PubMed • July 8, 2026</div>
+            </article>
+                <div class="text-sm text-emerald-700 mt-4">
+                        Updated daily • Sourced from PubMed
+                    </div>
+
+
+        </div>
+
+        <div id="latest-content" class="space-y-12">
+            <!-- Python script will populate this area -->
+            <!-- Or you can paste the content here manually for now -->
+        </div>
+
+        <div class="text-center mt-16">
+            <a href="#" 
+               class="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium">
+                Back to top 
+                <span class="text-xl">→</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Sign Up Modal -->
+<div id="signup-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100]">
+    <div class="bg-white rounded-3xl p-8 w-full max-w-md mx-4">
+        <h3 class="text-2xl font-semibold mb-6 text-center">Create Your Account</h3>
         
-        <input type="password" id="signup-password" placeholder="Password" 
-               class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500">
+        <div class="space-y-4">
+            <input type="email" id="modal-signup-email" placeholder="Email address" 
+                   class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500">
+            
+            <input type="password" id="modal-signup-password" placeholder="Password (min 6 characters)" 
+                   class="w-full px-5 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500">
+            
+            <button onclick="handleSignUpModal()" 
+                    class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-semibold hover:bg-emerald-700">
+                Create Account
+            </button>
+        </div>
         
-        <button onclick="handleSignUp()" 
-                class="w-full bg-emerald-600 text-white py-5 rounded-2xl font-semibold hover:bg-emerald-700">
-            Create Account
+        <button onclick="hideSignUpModal()" 
+                class="mt-6 w-full text-slate-500 hover:text-slate-700">
+            Cancel
         </button>
     </div>
 </div>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>

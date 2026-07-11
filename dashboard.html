@@ -51,8 +51,8 @@
                 </div>
             </div>
 
-            <nav class="flex-1 p-6 space-y-1">
-                <a href="#" onclick="showDefaultDashboard()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📝 My Notes</a>
+            <nav class="flex-1 p-6 space-y-1 overflow-y-auto min-h-0">
+                <a href="#" onclick="showDefaultDashboard()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🏠 Home</a>
 
                 <!-- Journal with Dropdown -->
                 <div class="relative group">
@@ -72,11 +72,11 @@
                     </div>
                 </div>
 
-                <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📈 Progress</a>
+                <a href="#" onclick="showProgress()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📈 Progress</a>
                 <a href="#" onclick="showGoals()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🎯 Goals</a>
-                <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🌱 Reflections</a>
-                <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📚 Resources</a>
-                <a href="#" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">⚙️ Settings</a>
+                <a href="#" onclick="showBetaFeatures()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">🧪 Beta Features</a>
+                <a href="#" onclick="showResources()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">📚 Resources</a>
+               <a href="#" onclick="showSettings()" class="flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-white/10 transition">⚙️ Settings</a>
             </nav>
 
             <div class="p-6 border-t border-white/20">
@@ -90,8 +90,13 @@
             <!-- Default Dashboard -->
             <div id="default-dashboard" class="h-full overflow-auto">
                 <div class="max-w-5xl mx-auto">
-                    <h1 class="text-5xl font-bold text-[#0F4C81]">Good afternoon, Jacob</h1>
-                    <p class="text-xl text-slate-600 mt-2">Here's your private space to keep growing.</p>
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h1 class="text-5xl font-bold text-[#0F4C81]">Good afternoon, <span id="user-display-name">friend</span></h1>
+                            <p class="text-xl text-slate-600 mt-2">Here's your private space to keep growing.</p>
+                        </div>
+                        <div id="user-avatar" class="w-14 h-14 bg-[#0F4C81] text-white rounded-full flex items-center justify-center font-bold text-xl shadow-md shrink-0">?</div>
+                    </div>
 
                     <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="bg-white rounded-3xl p-8">
@@ -133,14 +138,10 @@
                         </div>
                     </div>
 
-                    <div class="mt-10 bg-white rounded-3xl p-8">
-                        <h2 class="text-2xl font-semibold mb-6">Today's Prompts</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="border border-slate-100 rounded-2xl p-6 hover:border-[#0F4C81] cursor-pointer transition">What drained your energy this week?</div>
-                            <div class="border border-slate-100 rounded-2xl p-6 hover:border-[#0F4C81] cursor-pointer transition">What are you proud of right now?</div>
-                            <div class="border border-slate-100 rounded-2xl p-6 hover:border-[#0F4C81] cursor-pointer transition">What do you need more of?</div>
+                    <div class="mt-10 bg-[#0F4C81] text-white rounded-3xl p-8 text-center">
+                        <div class="text-sm uppercase tracking-widest opacity-70 mb-3">Quote of the Day</div>
+                            <p class="text-2xl font-medium" style="font-family: 'Playfair Display', serif;">"Small steps every day add up to big change."</p>
                         </div>
-                    </div>
                 </div>
             </div>
 
@@ -215,7 +216,7 @@
 
                                 <!-- LEFT PAGE: Table of Contents -->
                                 <div class="w-1/2 h-full flex flex-col py-[7%] pl-[13%] pr-[7%]">
-                                    <h3 class="text-lg font-bold text-amber-900/80 mb-3 tracking-wide" style="font-family: 'Playfair Display', serif;">Table of Contents</h3>
+                                    <h3 class="text-lg font-bold text-amber-900/80 mb-3 tracking-wide text-center" style="font-family: 'Playfair Display', serif;">Table of Contents</h3>
 
                                     <!-- Entry list (populated by JavaScript) -->
                                     <div id="entry-list" class="entry-list flex-1 overflow-y-auto space-y-1 pr-2">
@@ -247,9 +248,9 @@
                 </div>
             </div>
 
-            <!-- Goals Content -->
-            <div id="goals-content" class="hidden h-full flex flex-col max-w-7xl mx-auto">
 
+            <!-- Goals Content -->
+            <div id="goals-content" class="hidden h-full flex-col max-w-7xl mx-auto w-full">
                 <!-- Four Quadrants -->
                 <div class="flex-1 grid grid-cols-2 gap-6 min-h-0">
 
@@ -263,11 +264,10 @@
                             <div class="text-sm text-slate-400 italic">No items yet. Click + to add.</div>
                         </div>
                     </div>
-
                     <!-- HEALTH HABITS -->
                     <div class="bg-white rounded-3xl p-8 flex flex-col overflow-hidden">
                         <h2 class="text-2xl font-semibold text-[#0F4C81] mb-4">💪 Health Habits</h2>
-                        <div class="flex-1 space-y-3">
+                        <div class="flex-1 space-y-3 overflow-y-auto min-h-0">
                             <button id="habit-btn-sleep" onclick="openSurvey('sleep')" class="habit-btn w-full text-left px-6 py-4 rounded-2xl border-2 border-slate-200 hover:border-[#0F4C81] font-medium transition">😴 Sleep</button>
                             <button id="habit-btn-nutrition" onclick="openSurvey('nutrition')" class="habit-btn w-full text-left px-6 py-4 rounded-2xl border-2 border-slate-200 hover:border-[#0F4C81] font-medium transition">🥗 Diet / Nutrition</button>
                             <button id="habit-btn-exercise" onclick="openSurvey('exercise')" class="habit-btn w-full text-left px-6 py-4 rounded-2xl border-2 border-slate-200 hover:border-[#0F4C81] font-medium transition">🏃 Exercise</button>
@@ -290,19 +290,277 @@
                     <!-- MOOD TRACKER -->
                     <div class="bg-white rounded-3xl p-8 flex flex-col overflow-hidden">
                         <h2 class="text-2xl font-semibold text-[#0F4C81] mb-4">🙂 Mood Tracker</h2>
-                        <div class="flex-1 flex items-center justify-center gap-6 text-6xl">
-                            <span class="cursor-pointer hover:scale-125 transition">😄</span>
-                            <span class="cursor-pointer hover:scale-125 transition">🙂</span>
-                            <span class="cursor-pointer hover:scale-125 transition">😐</span>
-                            <span class="cursor-pointer hover:scale-125 transition">😟</span>
-                            <span class="cursor-pointer hover:scale-125 transition">😠</span>
+                                                <div class="flex-1 flex items-center justify-center gap-6 text-6xl" id="mood-row">
+                                <span onclick="logMood(5)" data-mood="5" class="cursor-pointer hover:scale-125 transition">😄</span>
+                                <span onclick="logMood(4)" data-mood="4" class="cursor-pointer hover:scale-125 transition">🙂</span>
+                                <span onclick="logMood(3)" data-mood="3" class="cursor-pointer hover:scale-125 transition">😐</span>
+                                <span onclick="logMood(2)" data-mood="2" class="cursor-pointer hover:scale-125 transition">😟</span>
+                                <span onclick="logMood(1)" data-mood="1" class="cursor-pointer hover:scale-125 transition">😠</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- MOTIVATIONAL QUOTE BAR -->
-                <div class="mt-6 bg-[#0F4C81] text-white rounded-3xl px-8 py-5 text-center text-lg font-medium">
-                    💬 "Small steps every day add up to big change." <span class="opacity-60 text-sm ml-2">— Quote of the Day</span>
+            <!-- Settings Content (demo mockup) -->
+            <div id="settings-content" class="hidden h-full overflow-auto">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-bold text-[#0F4C81] mb-8">⚙️ Settings</h1>
+
+        <!-- Profile -->
+        <div class="bg-white rounded-3xl p-8 mb-6">
+            <h2 class="text-xl font-semibold mb-6">Profile</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div>
+                        <div class="font-medium">Display Name</div>
+                        <div class="text-sm text-slate-500">How your name appears in the app</div>
+                    </div>
+                    <button onclick="openNicknameModal(currentNickname)" class="text-[#0F4C81] font-medium hover:underline">Edit</button>
+                </div>
+                <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div>
+                        <div class="font-medium">Profile Photo</div>
+                        <div class="text-sm text-slate-500">Upload a photo or choose an avatar</div>
+                    </div>
+                    <button class="text-[#0F4C81] font-medium hover:underline">Change</button>
+                </div>
+                <div class="flex items-center justify-between py-3">
+                    <div>
+                        <div class="font-medium">Email Address</div>
+                        <div class="text-sm text-slate-500">Used for login and notifications</div>
+                    </div>
+                    <button class="text-[#0F4C81] font-medium hover:underline">Update</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="bg-white rounded-3xl p-8 mb-6">
+            <h2 class="text-xl font-semibold mb-6">Notifications</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div>
+                        <div class="font-medium">Daily Check-in Reminder</div>
+                        <div class="text-sm text-slate-500">Gentle nudge to log your habits</div>
+                    </div>
+                    <div class="w-12 h-7 bg-emerald-500 rounded-full relative cursor-pointer"><div class="w-5 h-5 bg-white rounded-full absolute right-1 top-1"></div></div>
+                </div>
+                <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div>
+                        <div class="font-medium">New Prompt Alerts</div>
+                        <div class="text-sm text-slate-500">When your therapist adds a prompt</div>
+                    </div>
+                    <div class="w-12 h-7 bg-emerald-500 rounded-full relative cursor-pointer"><div class="w-5 h-5 bg-white rounded-full absolute right-1 top-1"></div></div>
+                </div>
+                <div class="flex items-center justify-between py-3">
+                    <div>
+                        <div class="font-medium">Weekly Progress Summary</div>
+                        <div class="text-sm text-slate-500">Email recap of your week</div>
+                    </div>
+                    <div class="w-12 h-7 bg-slate-200 rounded-full relative cursor-pointer"><div class="w-5 h-5 bg-white rounded-full absolute left-1 top-1"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy -->
+        <div class="bg-white rounded-3xl p-8 mb-6">
+            <h2 class="text-xl font-semibold mb-6">Privacy & Sharing</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div>
+                        <div class="font-medium">Share journal with therapist</div>
+                        <div class="text-sm text-slate-500">Only submitted entries are shared</div>
+                    </div>
+                    <div class="w-12 h-7 bg-emerald-500 rounded-full relative cursor-pointer"><div class="w-5 h-5 bg-white rounded-full absolute right-1 top-1"></div></div>
+                </div>
+                <div class="flex items-center justify-between py-3">
+                    <div>
+                        <div class="font-medium">Download my data</div>
+                        <div class="text-sm text-slate-500">Export everything you've written</div>
+                    </div>
+                    <button class="text-[#0F4C81] font-medium hover:underline">Export</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account -->
+        <div class="bg-white rounded-3xl p-8">
+            <h2 class="text-xl font-semibold mb-6">Account</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div>
+                        <div class="font-medium">Subscription</div>
+                        <div class="text-sm text-slate-500">Premium • Renews monthly</div>
+                    </div>
+                    <button class="text-[#0F4C81] font-medium hover:underline">Manage</button>
+                </div>
+                <div class="flex items-center justify-between py-3">
+                    <div>
+                        <div class="font-medium text-red-600">Delete Account</div>
+                        <div class="text-sm text-slate-500">Permanently remove all data</div>
+                    </div>
+                    <button class="text-red-600 font-medium hover:underline">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <!-- Progress Content -->
+            <div id="progress-content" class="hidden h-full overflow-auto">
+                <div class="max-w-5xl mx-auto">
+
+                    <!-- Header with Demo Mode toggle -->
+                    <div class="flex items-center justify-between mb-8">
+                        <h1 class="text-4xl font-bold text-[#0F4C81]">📈 Progress</h1>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-medium text-slate-600">Demo Mode</span>
+                            <div id="demo-toggle" onclick="toggleDemoMode()" class="w-12 h-7 bg-slate-200 rounded-full relative cursor-pointer">
+                                <div class="w-5 h-5 bg-white rounded-full absolute left-1 top-1 shadow"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goal Progress Cards -->
+                    <div class="mb-10">
+                        <h2 class="text-xl font-semibold text-slate-800 mb-4">Goal Progress</h2>
+                        <div id="goal-progress-cards" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white rounded-3xl p-6">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-medium text-slate-800">Goal name</span>
+                                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-500">Not Started</span>
+                                </div>
+                                <div class="h-2.5 bg-slate-100 rounded-full">
+                                    <div class="h-2.5 bg-slate-300 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-3xl p-6">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-medium text-slate-800">Goal name</span>
+                                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-600">In Progress</span>
+                                </div>
+                                <div class="h-2.5 bg-slate-100 rounded-full">
+                                    <div class="h-2.5 bg-blue-500 rounded-full" style="width: 50%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-3xl p-6">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-medium text-slate-800">Goal name</span>
+                                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-600">Complete</span>
+                                </div>
+                                <div class="h-2.5 bg-slate-100 rounded-full">
+                                    <div class="h-2.5 bg-emerald-500 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Habit Streaks This Week -->
+                    <div class="mb-10">
+                        <h2 class="text-xl font-semibold text-slate-800 mb-4">Habit Streaks This Week</h2>
+                        <div id="habit-streaks" class="bg-white rounded-3xl p-6 grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
+                            <div>
+                                <div class="text-3xl mb-1">😴</div>
+                                <div id="streak-sleep" class="text-2xl font-bold text-[#0F4C81]">0/7</div>
+                                <div class="text-xs text-slate-500">Sleep</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl mb-1">🥗</div>
+                                <div id="streak-nutrition" class="text-2xl font-bold text-[#0F4C81]">0/7</div>
+                                <div class="text-xs text-slate-500">Nutrition</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl mb-1">🏃</div>
+                                <div id="streak-exercise" class="text-2xl font-bold text-[#0F4C81]">0/7</div>
+                                <div class="text-xs text-slate-500">Exercise</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl mb-1">👥</div>
+                                <div id="streak-social" class="text-2xl font-bold text-[#0F4C81]">0/7</div>
+                                <div class="text-xs text-slate-500">Social</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl mb-1">🧠</div>
+                                <div id="streak-mindset" class="text-2xl font-bold text-[#0F4C81]">0/7</div>
+                                <div class="text-xs text-slate-500">Mindset</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+                        <div class="bg-white rounded-3xl p-6">
+                            <h2 class="text-xl font-semibold text-slate-800 mb-4">Mood Over 30 Days</h2>
+                            <div id="mood-chart" class="h-56 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 text-sm">
+                                Chart will render here
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-3xl p-6">
+                            <h2 class="text-xl font-semibold text-slate-800 mb-4">Sleep Quality</h2>
+                            <div id="sleep-chart" class="h-56 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 text-sm">
+                                Chart will render here
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Journal Submissions -->
+                    <div class="mb-10">
+                        <h2 class="text-xl font-semibold text-slate-800 mb-4">Journal Submissions</h2>
+                        <div id="journal-submissions-list" class="bg-white rounded-3xl p-6 space-y-4">
+                            <div class="text-sm text-slate-400 italic">No submitted entries yet.</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Resources Content -->
+            <div id="resources-content" class="hidden h-full overflow-auto">
+                <div class="max-w-5xl mx-auto">
+                    <h1 class="text-4xl font-bold text-[#0F4C81] mb-8">📚 Resources</h1>
+
+                    <!-- Emergency Resources -->
+                    <div class="bg-rose-50 border border-rose-200 rounded-3xl p-8 mb-10">
+                        <h2 class="text-xl font-semibold text-rose-700 mb-4">🆘 Emergency Resources</h2>
+                        <div class="space-y-3">
+                            <div class="text-slate-700"><span class="font-semibold">988 Suicide & Crisis Lifeline</span> — Call or text 988</div>
+                            <div class="text-slate-700"><span class="font-semibold">Crisis Text Line</span> — Text HOME to 741741</div>
+                            <div class="text-slate-700"><span class="font-semibold">Emergency Services</span> — Call 911</div>
+                        </div>
+                    </div>
+
+                    <!-- Books -->
+                    <div class="mb-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-semibold text-slate-800">📚 Books</h2>
+                            <button onclick="openAddResourceModal('book')" class="w-9 h-9 bg-[#0F4C81] hover:bg-[#0A3D68] text-white rounded-full text-lg font-bold shadow transition">+</button>
+                        </div>
+                        <div id="books-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="text-sm text-slate-400 italic">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Links -->
+                    <div class="mb-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-semibold text-slate-800">🔗 Links</h2>
+                            <button onclick="openAddResourceModal('link')" class="w-9 h-9 bg-[#0F4C81] hover:bg-[#0A3D68] text-white rounded-full text-lg font-bold shadow transition">+</button>
+                        </div>
+                        <div id="links-list" class="space-y-4">
+                            <div class="text-sm text-slate-400 italic">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beta Features Content -->
+            <div id="beta-content" class="hidden h-full overflow-auto">
+                <div class="max-w-5xl mx-auto">
+                    <h1 class="text-4xl font-bold text-[#0F4C81] mb-2">🧪 Beta Features</h1>
+                    <p class="text-slate-500 mb-8">Experimental features in testing</p>
+                    <div class="bg-white rounded-3xl p-8 text-slate-400 italic">
+                        Nothing here yet — features coming soon.
+                    </div>
                 </div>
             </div>
         </div>
@@ -317,6 +575,25 @@
             <div class="flex gap-3">
                 <button onclick="closeAddItemModal()" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-700 py-4 rounded-2xl font-medium transition">Cancel</button>
                 <button onclick="confirmAddItem()" class="flex-1 bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-4 rounded-2xl font-medium transition">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Resource Modal (books & links) -->
+    <div id="add-resource-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md mx-4">
+            <h3 id="add-resource-title" class="text-2xl font-bold text-[#0F4C81] mb-6">Add Book</h3>
+            <div class="space-y-4 mb-6">
+                <input type="text" id="resource-title-input" placeholder="Title"
+                    class="w-full px-6 py-4 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg">
+                <input type="text" id="resource-secondary-input" placeholder="Author"
+                    class="w-full px-6 py-4 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg">
+                <textarea id="resource-note-input" placeholder="Note (optional)" rows="3"
+                    class="w-full px-6 py-4 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg resize-none"></textarea>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeAddResourceModal()" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-700 py-4 rounded-2xl font-medium transition">Cancel</button>
+                <button onclick="confirmAddResource()" class="flex-1 bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-4 rounded-2xl font-medium transition">Add</button>
             </div>
         </div>
     </div>
@@ -342,6 +619,19 @@
             <div class="flex gap-3">
                 <button onclick="closeNewEntryModal()" class="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-700 py-4 rounded-2xl font-medium transition">Cancel</button>
                 <button onclick="createNewEntry()" class="flex-1 bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-4 rounded-2xl font-medium transition">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nickname Modal (first-time setup, forced; reused for editing from Settings) -->
+    <div id="nickname-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md mx-4">
+            <h3 class="text-2xl font-bold text-[#0F4C81] mb-6">What should we call you?</h3>
+            <input type="text" id="nickname-input" placeholder="Your name"
+                class="w-full px-6 py-4 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg mb-6">
+            <div class="flex gap-3">
+                <button id="nickname-cancel-btn" onclick="closeNicknameModal()" class="hidden flex-1 border border-slate-300 hover:bg-slate-50 text-slate-700 py-4 rounded-2xl font-medium transition">Cancel</button>
+                <button onclick="confirmNickname()" class="flex-1 bg-[#0F4C81] hover:bg-[#0A3D68] text-white py-4 rounded-2xl font-medium transition">Save</button>
             </div>
         </div>
     </div>
