@@ -623,6 +623,25 @@
         </div>
     </div>
 
+    <!-- Prompts Modal -->
+    <div id="prompts-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-lg mx-4 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-[#0F4C81]">Prompts</h3>
+                <button onclick="closePromptsModal()" class="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+            </div>
+
+            <div class="flex gap-2 mb-6 bg-slate-100 rounded-2xl p-1">
+                <button id="prompts-tab-suggested" onclick="switchPromptsTab('suggested')"
+                    class="flex-1 py-3 rounded-xl font-medium transition text-sm bg-white shadow text-[#0F4C81]">✨ Suggested</button>
+                <button id="prompts-tab-therapist" onclick="switchPromptsTab('therapist')"
+                    class="flex-1 py-3 rounded-xl font-medium transition text-sm text-slate-500 hover:text-slate-700">👩‍⚕️ From Dr. Elena</button>
+            </div>
+
+            <div id="prompts-list" class="space-y-3 overflow-y-auto pr-1 flex-1"></div>
+        </div>
+    </div>
+
     <!-- Nickname Modal (first-time setup, forced; reused for editing from Settings) -->
     <div id="nickname-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
         <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md mx-4">

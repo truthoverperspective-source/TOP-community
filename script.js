@@ -184,29 +184,33 @@ function closeNewEntryModal() {
 }
 
 async function createNewEntry() {
-    const user = auth.currentUser;
-    if (!user) {
-        alert("You must be logged in.");
-        return;
-    }
-
     const name = document.getElementById('new-entry-name').value.trim();
     if (!name) {
         alert("Please give your entry a name.");
         return;
     }
 
+    closeNewEntryModal();
+    await createEntryWithTitle(name);
+}
+
+async function createEntryWithTitle(title) {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("You must be logged in.");
+        return;
+    }
+
     try {
         const docRef = await db.collection('users').doc(user.uid)
             .collection('journals').add({
-                title: name,
+                title: title,
                 text: '',
                 status: 'draft',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 userId: user.uid
             });
 
-        closeNewEntryModal();
         await loadEntries();          // Refresh the table of contents
         openEntry(docRef.id, 'edit'); // Open the new entry ready to write
 
@@ -653,8 +657,94 @@ async function loadTodayMood() {
 // PLACEHOLDER FUNCTIONS (to build later)
 // ============================================
 function customizeJournal() { alert("🎨 Customization coming soon."); }
-function showPrompts() { alert("Prompts coming soon."); }
 function showBookshelf() { alert("Bookshelf coming soon."); }
+
+// ============================================
+// PROMPTS
+// ============================================
+const SUGGESTED_PROMPTS = [
+    "What drained your energy this week?",
+    "What are you proud of right now?",
+    "What's one thing you're avoiding, and why?",
+    "Describe a moment today when you felt calm.",
+    "What would you tell a friend going through what you're going through?",
+    "What's one small win you can celebrate today?"
+];
+
+const THERAPIST_PROMPTS = [
+    { text: "Let's explore where that guilt about saying no is coming from.", from: "Dr. Elena" },
+    { text: "Write about a boundary you set this week — how did it feel?", from: "Dr. Elena" },
+    { text: "What does \"enough\" mean to you right now?", from: "Dr. Elena" }
+];
+
+function showPrompts() {
+    showJournal();
+    openJournalNotebook();
+    document.getElementById('prompts-modal').classList.remove('hidden');
+    switchPromptsTab('suggested');
+}
+
+function closePromptsModal() {
+    document.getElementById('prompts-modal').classList.add('hidden');
+}
+
+function switchPromptsTab(tab) {
+    const suggestedBtn = document.getElementById('prompts-tab-suggested');
+    const therapistBtn = document.getElementById('prompts-tab-therapist');
+    const activeClasses = ['bg-white', 'shadow', 'text-[#0F4C81]'];
+    const inactiveClasses = ['text-slate-500', 'hover:text-slate-700'];
+
+    suggestedBtn.classList.remove(...activeClasses, ...inactiveClasses);
+    therapistBtn.classList.remove(...activeClasses, ...inactiveClasses);
+
+    const activeBtn = tab === 'suggested' ? suggestedBtn : therapistBtn;
+    const inactiveBtn = tab === 'suggested' ? therapistBtn : suggestedBtn;
+    activeBtn.classList.add(...activeClasses);
+    inactiveBtn.classList.add(...inactiveClasses);
+
+    const list = document.getElementById('prompts-list');
+    list.innerHTML = '';
+
+    if (tab === 'suggested') {
+        SUGGESTED_PROMPTS.forEach(text => list.appendChild(buildPromptRow(text)));
+    } else {
+        THERAPIST_PROMPTS.forEach(p => list.appendChild(buildPromptRow(p.text, p.from)));
+    }
+}
+
+function buildPromptRow(text, from) {
+    const row = document.createElement('div');
+    row.className = 'bg-slate-50 rounded-2xl p-4 flex items-center justify-between gap-4';
+
+    const textWrap = document.createElement('div');
+    textWrap.className = 'min-w-0';
+
+    const p = document.createElement('p');
+    p.className = 'text-slate-700 text-sm leading-relaxed';
+    p.textContent = text;
+    textWrap.appendChild(p);
+
+    if (from) {
+        const fromEl = document.createElement('p');
+        fromEl.className = 'text-xs text-amber-700 mt-1 font-medium';
+        fromEl.textContent = '— ' + from;
+        textWrap.appendChild(fromEl);
+    }
+
+    const btn = document.createElement('button');
+    btn.className = 'shrink-0 bg-[#0F4C81] hover:bg-[#0A3D68] text-white text-xs font-medium px-4 py-2 rounded-xl transition whitespace-nowrap';
+    btn.textContent = 'Write with this';
+    btn.onclick = () => writeWithPrompt(text);
+
+    row.appendChild(textWrap);
+    row.appendChild(btn);
+    return row;
+}
+
+async function writeWithPrompt(promptText) {
+    closePromptsModal();
+    await createEntryWithTitle(promptText);
+}
 // ============================================
 // DYNAMIC USER NAME
 // ============================================
