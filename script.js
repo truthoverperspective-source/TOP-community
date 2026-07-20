@@ -99,6 +99,7 @@ function closeJournalNotebook() {
 async function loadEntries() {
     const user = auth.currentUser;
     if (!user) return;
+    if (!currentBookId) return; // no journal book selected yet
 
     const entryList = document.getElementById('entry-list');
     entryList.innerHTML = '<div class="text-sm text-amber-800/50 italic">Loading...</div>';
@@ -106,7 +107,7 @@ async function loadEntries() {
     try {
         const snapshot = await db.collection('users').doc(user.uid)
             .collection('journals')
-            .orderBy('timestamp', 'desc')
+            .where('bookId', '==', currentBookId)
             .get();
 
         if (snapshot.empty) {
@@ -114,8 +115,16 @@ async function loadEntries() {
             return;
         }
 
+        // Sorted client-side (rather than orderBy in the query) since an
+        // equality filter + orderBy on a different field needs a composite index.
+        const docs = snapshot.docs.slice().sort((a, b) => {
+            const at = a.data().timestamp ? a.data().timestamp.toMillis() : 0;
+            const bt = b.data().timestamp ? b.data().timestamp.toMillis() : 0;
+            return bt - at;
+        });
+
         entryList.innerHTML = '';
-        snapshot.forEach(doc => {
+        docs.forEach(doc => {
             const data = doc.data();
             const date = data.timestamp ? data.timestamp.toDate() : new Date();
             const dateStr = (date.getMonth() + 1) + '/' + date.getDate() + '/' + String(date.getFullYear()).slice(-2);
@@ -207,6 +216,7 @@ async function createEntryWithTitle(title) {
                 title: title,
                 text: '',
                 status: 'draft',
+                bookId: currentBookId,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 userId: user.uid
             });
@@ -284,6 +294,8 @@ function showJournal() {
     goals.classList.add('hidden');
     goals.classList.remove('flex');
     document.getElementById('journal-content').classList.remove('hidden');
+    applyJournalTheme(currentJournalTheme, currentJournalGraphic);
+    updateCurrentJournalSidebar();
 }
 
 function showDefaultDashboard() {
@@ -349,6 +361,402 @@ function showBetaFeatures() {
     goals.classList.add('hidden');
     goals.classList.remove('flex');
     document.getElementById('beta-content').classList.remove('hidden');
+    renderBetaPanel();
+}
+
+// ============================================
+// BETA FEATURES — HEALTH INTELLIGENCE PANEL
+// ============================================
+
+// SAMPLE DATA — hand-shaped to look like a real tracker API response
+// (Fitbit-style daily records). Not connected to any live device.
+// getHealthData() is the only thing UI code should call — swapping in a
+// real API later means changing that one function, not the render code.
+function generateSampleHealthData() {
+    let seed = 88172645;
+    function rand() {
+        seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+        seed |= 0;
+        return (seed >>> 0) / 4294967296;
+    }
+    function randRange(min, max) { return min + rand() * (max - min); }
+
+    const days = [];
+    for (let i = 29; i >= 0; i--) {
+        const dateKey = dateKeyDaysAgo(i);
+        const [y, m, d] = dateKey.split('-').map(Number);
+        const isWeekend = [0, 6].includes(new Date(y, m - 1, d).getDay());
+
+        const sleepHours = Number(randRange(5.5, 8.5).toFixed(1));
+        const sleepMinutesTotal = Math.round(sleepHours * 60);
+        const deep = Math.round(sleepMinutesTotal * randRange(0.14, 0.20));
+        const rem = Math.round(sleepMinutesTotal * randRange(0.19, 0.25));
+        const light = sleepMinutesTotal - deep - rem;
+
+        const bedtimeDate = new Date(2000, 0, 1, Math.floor(randRange(21, 24.9)) % 24, Math.floor(randRange(0, 60)));
+        const bedtime = bedtimeDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+        days.push({
+            date: dateKey,
+            sleepHours: sleepHours,
+            sleepStages: { deep: deep, rem: rem, light: light },
+            bedtime: bedtime,
+            steps: Math.round(randRange(isWeekend ? 3000 : 4000, isWeekend ? 11000 : 14000)),
+            activeMinutes: Math.round(randRange(12, 95)),
+            restingHR: Math.round(randRange(58, 72)),
+            hrv: Math.round(randRange(25, 65)),
+            waterOz: Math.round(randRange(20, 92)),
+            mindfulMinutes: Math.round(randRange(0, 30))
+        });
+    }
+    return days;
+}
+
+const SAMPLE_HEALTH_DATA = { device: 'Fitbit Charge 6', days: generateSampleHealthData() };
+
+function getHealthData() {
+    return SAMPLE_HEALTH_DATA.days;
+}
+
+function shortLabelForDate(dateKey) {
+    const [, m, d] = dateKey.split('-').map(Number);
+    return m + '/' + d;
+}
+
+function shiftDateKey(dateKey, offsetDays) {
+    const [y, m, d] = dateKey.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() + offsetDays);
+    return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+}
+
+function avgField(arr, field) {
+    if (!arr.length) return 0;
+    return arr.reduce((sum, d) => sum + d[field], 0) / arr.length;
+}
+
+function deltaBadge(current, baseline, opts) {
+    opts = opts || {};
+    const diff = current - baseline;
+    const up = diff >= 0;
+    const color = up ? 'text-cyan-400' : 'text-amber-400';
+    const decimals = opts.decimals === undefined ? 1 : opts.decimals;
+    return `<span class="${color} font-mono text-xs">${up ? '▲' : '▼'} ${Math.abs(diff).toFixed(decimals)}${opts.suffix || ''}</span>`;
+}
+
+function updateBetaDeviceLabel(name) {
+    const el = document.getElementById('beta-sync-status');
+    if (el) el.textContent = 'SYNCED 2 MIN AGO — ' + name.toUpperCase();
+}
+
+// ---- dark chart renderers (parameterized, no hardcoded light colors) ----
+
+function renderDarkChart(containerId, points, opts) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (!points.length) {
+        container.innerHTML = '<div class="h-24 flex items-center justify-center text-slate-600 text-xs font-mono">NO DATA</div>';
+        return;
+    }
+
+    const color = opts.color || '#22d3ee';
+    const min = opts.min, max = opts.max;
+    const width = 600;
+    const height = opts.height || 160;
+    const padX = 8, padY = 12;
+    const gradId = 'grad-' + containerId;
+
+    const xStep = (width - padX * 2) / (points.length - 1 || 1);
+    const yScale = v => height - padY - ((v - min) / (max - min || 1)) * (height - padY * 2);
+    const coords = points.map((p, i) => ({ x: padX + i * xStep, y: yScale(p.value), label: p.label, value: p.value }));
+
+    const linePath = coords.map((c, i) => (i === 0 ? 'M' : 'L') + c.x.toFixed(1) + ' ' + c.y.toFixed(1)).join(' ');
+    const areaPath = linePath +
+        ` L ${coords[coords.length - 1].x.toFixed(1)} ${height - padY} L ${coords[0].x.toFixed(1)} ${height - padY} Z`;
+    const last = coords[coords.length - 1];
+
+    const gridValues = [min, (min + max) / 2, max];
+    const gridLines = gridValues.map(v => {
+        const y = yScale(v).toFixed(1);
+        return `<line x1="${padX}" y1="${y}" x2="${width - padX}" y2="${y}" stroke="#1e293b" stroke-width="1"/>`;
+    }).join('');
+
+    const hoverDots = coords.map(c =>
+        `<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="8" fill="transparent" class="chart-hover-dot" data-label="${c.label}" data-value="${c.value}"/>`
+    ).join('');
+
+    container.innerHTML = `
+        <div class="relative">
+            <svg viewBox="0 0 ${width} ${height}" class="w-full" style="height:${Math.round(height * 0.62)}px" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="${color}" stop-opacity="0.35"/>
+                        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+                    </linearGradient>
+                </defs>
+                ${gridLines}
+                <path d="${areaPath}" fill="url(#${gradId})" stroke="none"/>
+                <path d="${linePath}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 3px ${color})"/>
+                <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="4" fill="${color}" stroke="#020617" stroke-width="2"/>
+                ${hoverDots}
+            </svg>
+            <div class="chart-tooltip hidden absolute bg-slate-800 text-cyan-300 text-xs font-mono px-2 py-1 rounded border border-slate-700 pointer-events-none whitespace-nowrap z-10" style="transform: translate(-50%, -130%);"></div>
+            ${opts.showLabels === false ? '' : `
+            <div class="flex justify-between text-[10px] font-mono text-slate-500 mt-1 px-1">
+                <span>${points[0].label}</span>
+                <span>${points[points.length - 1].label}</span>
+            </div>`}
+        </div>
+    `;
+
+    wireChartTooltips(container, opts.valueSuffix);
+}
+
+function renderDarkBarChart(containerId, points, opts) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (!points.length) {
+        container.innerHTML = '<div class="h-20 flex items-center justify-center text-slate-600 text-xs font-mono">NO DATA</div>';
+        return;
+    }
+
+    const color = opts.color || '#22d3ee';
+    const highlightColor = opts.highlightColor || '#f59e0b';
+    const max = opts.max || Math.max(...points.map(p => p.value)) * 1.15;
+    const width = 600, height = opts.height || 130, padX = 8, padY = 10;
+    const barGap = 4;
+    const slot = (width - padX * 2) / points.length;
+    const barWidth = Math.max(2, slot - barGap);
+
+    const bars = points.map((p, i) => {
+        const x = padX + i * slot;
+        const h = Math.max(2, (p.value / (max || 1)) * (height - padY * 2));
+        const y = height - padY - h;
+        const fill = p.highlight ? highlightColor : color;
+        return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${fill}" class="chart-hover-dot" data-label="${p.label}" data-value="${p.value}"/>`;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="relative">
+            <svg viewBox="0 0 ${width} ${height}" class="w-full" style="height:${Math.round(height * 0.68)}px" preserveAspectRatio="none">
+                <line x1="${padX}" y1="${height - padY}" x2="${width - padX}" y2="${height - padY}" stroke="#1e293b" stroke-width="1"/>
+                ${bars}
+            </svg>
+            <div class="chart-tooltip hidden absolute bg-slate-800 text-cyan-300 text-xs font-mono px-2 py-1 rounded border border-slate-700 pointer-events-none whitespace-nowrap z-10" style="transform: translate(-50%, -130%);"></div>
+            <div class="flex justify-between text-[10px] font-mono text-slate-500 mt-1 px-1">
+                <span>${points[0].label}</span>
+                <span>${points[points.length - 1].label}</span>
+            </div>
+        </div>
+    `;
+
+    wireChartTooltips(container, opts.valueSuffix);
+}
+
+function wireChartTooltips(container, valueSuffix) {
+    const tooltip = container.querySelector('.chart-tooltip');
+    container.querySelectorAll('.chart-hover-dot').forEach(dot => {
+        dot.addEventListener('mouseenter', () => {
+            tooltip.textContent = dot.dataset.label + ': ' + dot.dataset.value + (valueSuffix || '');
+            tooltip.classList.remove('hidden');
+            const rect = dot.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            tooltip.style.left = (rect.left - containerRect.left + rect.width / 2) + 'px';
+            tooltip.style.top = (rect.top - containerRect.top) + 'px';
+        });
+        dot.addEventListener('mouseleave', () => tooltip.classList.add('hidden'));
+    });
+}
+
+function renderSleepStageBar(containerId, stages) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const total = stages.deep + stages.rem + stages.light || 1;
+    const segs = [
+        { label: 'DEEP', value: stages.deep, cls: 'bg-fuchsia-400' },
+        { label: 'REM', value: stages.rem, cls: 'bg-cyan-400' },
+        { label: 'LIGHT', value: stages.light, cls: 'bg-teal-400/50' }
+    ];
+    container.innerHTML = `
+        <div class="flex h-3 w-full rounded-full overflow-hidden bg-slate-800">
+            ${segs.map(s => `<div class="${s.cls}" style="width:${(s.value / total * 100).toFixed(1)}%"></div>`).join('')}
+        </div>
+        <div class="flex justify-between mt-2 text-[10px] font-mono uppercase tracking-widest text-slate-400">
+            ${segs.map(s => `<span>${s.label} <span class="text-slate-200">${Math.round(s.value)}m</span></span>`).join('')}
+        </div>
+    `;
+}
+
+// ---- pillar renderers ----
+
+function renderBetaSleep(data) {
+    const today = data[data.length - 1];
+    const last7 = data.slice(-7);
+    const avg7 = avgField(last7, 'sleepHours');
+
+    document.getElementById('beta-sleep-hours').textContent = today.sleepHours.toFixed(1) + 'H';
+    document.getElementById('beta-sleep-delta').innerHTML = deltaBadge(today.sleepHours, avg7, { suffix: 'H' });
+    renderSleepStageBar('beta-sleep-stage-bar', today.sleepStages);
+
+    const points = data.map(d => ({ label: shortLabelForDate(d.date), value: d.sleepHours }));
+    renderDarkChart('beta-sleep-chart', points, { color: '#22d3ee', min: 4, max: 9.5, valueSuffix: 'H' });
+}
+
+function renderBetaMovement(data) {
+    const today = data[data.length - 1];
+    const last7 = data.slice(-7);
+    const avgSteps7 = avgField(last7, 'steps');
+    const avgActive7 = avgField(last7, 'activeMinutes');
+
+    document.getElementById('beta-steps-today').textContent = today.steps.toLocaleString();
+    document.getElementById('beta-steps-avg').textContent = Math.round(avgSteps7).toLocaleString() + ' AVG/7D';
+    document.getElementById('beta-active-minutes').textContent = today.activeMinutes + ' MIN';
+    document.getElementById('beta-active-delta').innerHTML = deltaBadge(today.activeMinutes, avgActive7, { suffix: 'm', decimals: 0 });
+
+    const last14 = data.slice(-14);
+    const points = last14.map((d, i) => ({ label: shortLabelForDate(d.date), value: d.steps, highlight: i === last14.length - 1 }));
+    renderDarkBarChart('beta-steps-chart', points, { color: '#22d3ee', highlightColor: '#f59e0b', valueSuffix: ' steps' });
+}
+
+function renderBetaRecovery(data) {
+    const today = data[data.length - 1];
+    const last7 = data.slice(-7);
+    const avgHR7 = avgField(last7, 'restingHR');
+    const avgHRV7 = avgField(last7, 'hrv');
+
+    document.getElementById('beta-rhr-value').textContent = today.restingHR;
+    document.getElementById('beta-rhr-trend').innerHTML = deltaBadge(today.restingHR, avgHR7, { decimals: 0, suffix: '' });
+    renderDarkChart('beta-rhr-chart', data.map(d => ({ label: shortLabelForDate(d.date), value: d.restingHR })),
+        { color: '#2dd4bf', min: 50, max: 80, height: 90, showLabels: false, valueSuffix: 'bpm' });
+
+    document.getElementById('beta-hrv-value').textContent = today.hrv;
+    document.getElementById('beta-hrv-trend').innerHTML = deltaBadge(today.hrv, avgHRV7, { decimals: 0, suffix: '' });
+    renderDarkChart('beta-hrv-chart', data.map(d => ({ label: shortLabelForDate(d.date), value: d.hrv })),
+        { color: '#e879f9', min: 15, max: 75, height: 90, showLabels: false, valueSuffix: 'ms' });
+}
+
+function renderBetaNourishment(data) {
+    const today = data[data.length - 1];
+    const goal = 80;
+    const pct = Math.min(100, Math.round(today.waterOz / goal * 100));
+
+    document.getElementById('beta-water-value').textContent = today.waterOz + 'OZ / ' + goal + 'OZ';
+    document.getElementById('beta-water-bar').style.width = pct + '%';
+
+    const last7 = data.slice(-7);
+    const points = last7.map((d, i) => ({ label: shortLabelForDate(d.date), value: d.waterOz, highlight: i === last7.length - 1 }));
+    renderDarkBarChart('beta-water-chart', points, { color: '#22d3ee', highlightColor: '#f59e0b', height: 100, valueSuffix: 'oz' });
+}
+
+function renderBetaMindfulness(data) {
+    const totalMindful = data.slice(-7).reduce((sum, d) => sum + d.mindfulMinutes, 0);
+    document.getElementById('beta-mindful-total').textContent = totalMindful + ' MIN';
+}
+
+async function loadBetaSocialCheckins() {
+    const el = document.getElementById('beta-social-checkins');
+    if (!el) return;
+    const user = auth.currentUser;
+    if (!user) { el.textContent = '—/7 SOCIAL CHECK-INS'; return; }
+    try {
+        const snapshot = await db.collection('users').doc(user.uid)
+            .collection('healthSurveys')
+            .where(firebase.firestore.FieldPath.documentId(), '>=', dateKeyDaysAgo(6))
+            .where(firebase.firestore.FieldPath.documentId(), '<=', dateKeyDaysAgo(0))
+            .get();
+        let count = 0;
+        snapshot.forEach(doc => { if (doc.data().social) count++; });
+        el.textContent = count + '/7 SOCIAL CHECK-INS';
+    } catch (error) {
+        console.error('Error loading beta social check-ins:', error);
+        el.textContent = '—/7 SOCIAL CHECK-INS';
+    }
+}
+
+// ---- Insight Engine: real mood logs x sample sleep data ----
+
+function renderInsightCard(highAvg, lowAvg, isSample, meta) {
+    const container = document.getElementById('beta-insight-body');
+    if (!container) return;
+    const tag = isSample
+        ? `<span class="text-[10px] font-mono uppercase tracking-widest text-slate-500 border border-slate-700 rounded px-2 py-0.5">SAMPLE — LOG MOODS TO ACTIVATE</span>`
+        : `<span class="text-[10px] font-mono uppercase tracking-widest text-cyan-400 border border-cyan-700/50 rounded px-2 py-0.5">LIVE — YOUR MOOD DATA</span>`;
+    container.innerHTML = `
+        <div class="mb-3">${tag}</div>
+        <p class="text-base md:text-lg text-slate-300 leading-relaxed">
+            MOOD AVG <span class="font-mono text-2xl text-cyan-400">${highAvg.toFixed(1)}</span> AFTER 7H+ SLEEP
+            — VS <span class="font-mono text-2xl text-amber-400">${lowAvg.toFixed(1)}</span> BELOW 7H
+        </p>
+        <p class="mt-2 text-[10px] font-mono text-slate-600 uppercase tracking-widest">based on ${meta.high} / ${meta.low} logged days</p>
+    `;
+}
+
+function renderInsightSample() {
+    const days = getHealthData();
+    const moodPts = demoMoodPoints();
+    const high = [], low = [];
+    for (let j = 1; j < moodPts.length; j++) {
+        const prevSleep = days[j - 1].sleepHours;
+        (prevSleep >= 7 ? high : low).push(moodPts[j].value);
+    }
+    const avg = arr => arr.reduce((a, b) => a + b, 0) / (arr.length || 1);
+    renderInsightCard(avg(high), avg(low), true, { high: high.length, low: low.length });
+}
+
+async function computeInsightEngine() {
+    const container = document.getElementById('beta-insight-body');
+    if (container) container.innerHTML = '<span class="text-slate-500">Analyzing...</span>';
+
+    const user = auth.currentUser;
+    if (!user) { renderInsightSample(); return; }
+
+    try {
+        const snapshot = await db.collection('users').doc(user.uid)
+            .collection('healthSurveys')
+            .where(firebase.firestore.FieldPath.documentId(), '>=', dateKeyDaysAgo(29))
+            .where(firebase.firestore.FieldPath.documentId(), '<=', dateKeyDaysAgo(0))
+            .get();
+
+        const moodByDate = {};
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.mood && data.mood.value !== undefined && data.mood.value !== null) {
+                moodByDate[doc.id] = Number(data.mood.value);
+            }
+        });
+
+        const moodDates = Object.keys(moodByDate);
+        if (moodDates.length < 5) { renderInsightSample(); return; }
+
+        const sleepByDate = {};
+        getHealthData().forEach(d => { sleepByDate[d.date] = d.sleepHours; });
+
+        const high = [], low = [];
+        moodDates.forEach(dateKey => {
+            const sleepHours = sleepByDate[shiftDateKey(dateKey, -1)];
+            if (sleepHours === undefined) return;
+            (sleepHours >= 7 ? high : low).push(moodByDate[dateKey]);
+        });
+
+        if (!high.length || !low.length) { renderInsightSample(); return; }
+
+        const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+        renderInsightCard(avg(high), avg(low), false, { high: high.length, low: low.length });
+    } catch (error) {
+        console.error('Error computing insight engine:', error);
+        renderInsightSample();
+    }
+}
+
+function renderBetaPanel() {
+    const data = getHealthData();
+    renderBetaSleep(data);
+    renderBetaMovement(data);
+    renderBetaRecovery(data);
+    renderBetaNourishment(data);
+    renderBetaMindfulness(data);
+    loadBetaSocialCheckins();
+    computeInsightEngine();
 }
 
 // ============================================
@@ -654,10 +1062,530 @@ async function loadTodayMood() {
     } catch (e) { /* no mood yet, fine */ }
 }
 // ============================================
-// PLACEHOLDER FUNCTIONS (to build later)
+// JOURNAL CUSTOMIZATION — style + graphic
 // ============================================
-function customizeJournal() { alert("🎨 Customization coming soon."); }
-function showBookshelf() { alert("Bookshelf coming soon."); }
+let currentJournalTheme = 'parchment';
+let currentJournalGraphic = '';
+let pendingJournalTheme = 'parchment';
+let pendingJournalGraphic = '';
+
+const JOURNAL_THEMES = {
+    parchment: { bg: '#F5F0E6', border: 'rgba(120,53,15,0.35)', text: '#78350f', hint: 'rgba(146,64,14,0.7)', filter: 'none' },
+    ocean:     { bg: '#EAF2F8', border: 'rgba(30,58,138,0.3)',  text: '#1e3a8a', hint: 'rgba(30,58,138,0.65)', filter: 'hue-rotate(180deg) saturate(0.7) brightness(1.05)' },
+    sage:      { bg: '#EEF4EC', border: 'rgba(6,78,59,0.3)',    text: '#064e3b', hint: 'rgba(6,78,59,0.65)',   filter: 'hue-rotate(70deg) saturate(0.5) brightness(1.05)' },
+    blush:     { bg: '#FBEEF1', border: 'rgba(136,19,55,0.3)',  text: '#881337', hint: 'rgba(136,19,55,0.65)', filter: 'hue-rotate(300deg) saturate(0.5) brightness(1.05)' }
+};
+
+function applyJournalTheme(themeKey, graphicKey) {
+    const theme = JOURNAL_THEMES[themeKey] || JOURNAL_THEMES.parchment;
+
+    const notebookContainer = document.getElementById('notebook-container');
+    const openNotebook = document.getElementById('open-notebook');
+    const coverImg = document.getElementById('journal-cover-img');
+    const openImg = document.getElementById('journal-open-img');
+    const tocHeading = document.getElementById('toc-heading');
+    const entryTitle = document.getElementById('current-entry-title');
+    const hint = document.getElementById('notebook-hint');
+
+    if (notebookContainer) {
+        notebookContainer.style.backgroundColor = theme.bg;
+        notebookContainer.style.borderColor = theme.border;
+    }
+    if (openNotebook) {
+        openNotebook.style.backgroundColor = theme.bg;
+        openNotebook.style.borderColor = theme.border;
+    }
+    if (coverImg) coverImg.style.filter = theme.filter;
+    if (openImg) openImg.style.filter = theme.filter;
+    if (tocHeading) tocHeading.style.color = theme.text;
+    if (entryTitle) entryTitle.style.color = theme.text;
+    if (hint) hint.style.color = theme.hint;
+
+    const badge = document.getElementById('journal-graphic-badge');
+    if (badge) {
+        if (graphicKey) {
+            badge.textContent = graphicKey;
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+        } else {
+            badge.classList.add('hidden');
+            badge.classList.remove('flex');
+        }
+    }
+}
+
+function customizeJournal() {
+    pendingJournalTheme = currentJournalTheme;
+    pendingJournalGraphic = currentJournalGraphic;
+    highlightThemeSelection(pendingJournalTheme);
+    highlightGraphicSelection(pendingJournalGraphic);
+    document.getElementById('customize-modal').classList.remove('hidden');
+}
+
+function closeCustomizeModal() {
+    document.getElementById('customize-modal').classList.add('hidden');
+}
+
+function selectJournalTheme(themeKey) {
+    pendingJournalTheme = themeKey;
+    highlightThemeSelection(themeKey);
+}
+
+function selectJournalGraphic(graphicKey) {
+    pendingJournalGraphic = graphicKey;
+    highlightGraphicSelection(graphicKey);
+}
+
+function highlightThemeSelection(themeKey) {
+    document.querySelectorAll('.theme-swatch').forEach(btn => {
+        const selected = btn.dataset.theme === themeKey;
+        btn.classList.toggle('ring-4', selected);
+        btn.classList.toggle('ring-[#0F4C81]', selected);
+        btn.classList.toggle('ring-offset-2', selected);
+    });
+}
+
+function highlightGraphicSelection(graphicKey) {
+    document.querySelectorAll('.graphic-option').forEach(btn => {
+        const selected = btn.dataset.graphic === graphicKey;
+        btn.classList.toggle('border-[#0F4C81]', selected);
+        btn.classList.toggle('bg-blue-50', selected);
+        btn.classList.toggle('border-slate-200', !selected);
+    });
+}
+
+async function saveCustomization() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        await db.collection('profiles').doc(user.uid).set({
+            journalTheme: pendingJournalTheme,
+            journalGraphic: pendingJournalGraphic
+        }, { merge: true });
+
+        currentJournalTheme = pendingJournalTheme;
+        currentJournalGraphic = pendingJournalGraphic;
+        applyJournalTheme(currentJournalTheme, currentJournalGraphic);
+        closeCustomizeModal();
+    } catch (error) {
+        alert("Error saving customization: " + error.message);
+    }
+}
+
+// ============================================
+// BOOKSHELF — multiple journal books
+// ============================================
+let currentBookId = null;
+let currentBookData = null;
+
+const BOOK_COLOR_SCHEMES = {
+    classic: { bg: '#F5F0E6', spine: 'rgba(120,53,15,0.45)', text: '#78350f' },
+    ocean:   { bg: '#EAF2F8', spine: 'rgba(30,58,138,0.4)',  text: '#1e3a8a' },
+    sage:    { bg: '#EEF4EC', spine: 'rgba(6,78,59,0.4)',    text: '#064e3b' },
+    blush:   { bg: '#FBEEF1', spine: 'rgba(136,19,55,0.4)',  text: '#881337' },
+    slate:   { bg: '#EEF1F5', spine: 'rgba(51,65,85,0.4)',   text: '#334155' }
+};
+
+const STICKER_CORNERS = ['top-1.5 right-1.5', 'bottom-1.5 right-1.5', 'top-1.5 left-3', 'bottom-1.5 left-3'];
+
+function renderStickerOverlays(stickers, small, removable) {
+    const sizeClass = small ? 'text-sm' : 'text-lg';
+    return (stickers || []).slice(0, 4).map((emoji, i) => {
+        const clickAttr = removable ? `onclick="wizardRemoveSticker(${i})" title="Remove"` : '';
+        const cursorStyle = removable ? 'cursor:pointer;' : '';
+        return `<span class="absolute ${STICKER_CORNERS[i]} ${sizeClass}" ${clickAttr} style="${cursorStyle}filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25))">${emoji}</span>`;
+    }).join('');
+}
+
+// Style textures (cover "material") — combined with a BOOK_COLOR_SCHEMES
+// entry to produce the final look. Shared by the bookshelf grid, the
+// sidebar's mini cover, and the New Journal wizard's live preview.
+const BOOK_STYLE_TEXTURES = {
+    leather: {
+        backgroundImage: 'linear-gradient(135deg, rgba(0,0,0,0.32), rgba(0,0,0,0) 65%), repeating-linear-gradient(135deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 2px, transparent 2px, transparent 6px)',
+        shadow: '0 10px 20px -6px rgba(0,0,0,0.45)',
+        border: 'none',
+        swatch: 'linear-gradient(135deg, #2a1c10, #4a3320)'
+    },
+    linen: {
+        backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 2px, transparent 2px, transparent 5px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 2px, transparent 2px, transparent 5px)',
+        shadow: '0 6px 14px -4px rgba(0,0,0,0.15)',
+        border: 'none',
+        swatch: 'linear-gradient(135deg, #f5f1e8, #e5dcc8)'
+    },
+    kraft: {
+        backgroundImage: 'linear-gradient(160deg, rgba(120,72,0,0.2), rgba(120,72,0,0) 70%), repeating-linear-gradient(100deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 4px)',
+        shadow: '0 6px 14px -4px rgba(120,72,0,0.3)',
+        border: 'none',
+        swatch: 'linear-gradient(135deg, #b48a5a, #8a6539)'
+    },
+    modern: {
+        backgroundImage: 'none',
+        shadow: '0 2px 6px rgba(0,0,0,0.12)',
+        border: '1px solid rgba(0,0,0,0.08)',
+        swatch: '#f8fafc'
+    }
+};
+
+function getCoverVisualStyle(book, extraShadow) {
+    const colors = BOOK_COLOR_SCHEMES[book.colorScheme] || BOOK_COLOR_SCHEMES.classic;
+    const texture = BOOK_STYLE_TEXTURES[book.style] || BOOK_STYLE_TEXTURES.leather;
+    const shadows = [texture.shadow, extraShadow].filter(Boolean).join(', ');
+    return `background-color:${colors.bg};background-image:${texture.backgroundImage};box-shadow:${shadows};border:${texture.border};`;
+}
+
+function getCoverInnerHTML(book, removable) {
+    const colors = BOOK_COLOR_SCHEMES[book.colorScheme] || BOOK_COLOR_SCHEMES.classic;
+    return `
+        <span class="absolute left-0 top-0 bottom-0 w-2 rounded-l-md" style="background:${colors.spine}"></span>
+        <div class="absolute inset-0 flex items-center justify-center px-3 text-center">
+            <span class="font-semibold" style="font-family: 'Playfair Display', serif; color:${colors.text}">${book.name || ''}</span>
+        </div>
+        ${renderStickerOverlays(book.stickers, false, removable)}
+    `;
+}
+
+// Creates the one-time default book + backfills bookId on pre-existing
+// entries. Guarded by profiles/{uid}.bookshelfMigrated so it only ever
+// fires once, even if journalBooks somehow comes back empty again later.
+async function ensureDefaultBook(uid) {
+    const booksRef = db.collection('users').doc(uid).collection('journalBooks');
+    const snapshot = await booksRef.orderBy('createdAt').get();
+
+    if (!snapshot.empty) {
+        const first = snapshot.docs[0];
+        return { id: first.id, ...first.data() };
+    }
+
+    const profileRef = db.collection('profiles').doc(uid);
+    const profileDoc = await profileRef.get();
+    if (profileDoc.exists && profileDoc.data().bookshelfMigrated) {
+        return null; // already migrated once — don't silently recreate a book
+    }
+
+    const defaultBook = {
+        name: 'My Journal',
+        colorScheme: 'classic',
+        style: 'leather',
+        stickers: [],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    const defaultBookRef = booksRef.doc();
+    await defaultBookRef.set(defaultBook);
+
+    const journalsSnapshot = await db.collection('users').doc(uid).collection('journals').get();
+    const batch = db.batch();
+    journalsSnapshot.forEach(doc => {
+        if (!doc.data().bookId) {
+            batch.update(doc.ref, { bookId: defaultBookRef.id });
+        }
+    });
+    await batch.commit();
+
+    await profileRef.set({ bookshelfMigrated: true }, { merge: true });
+
+    return { id: defaultBookRef.id, ...defaultBook };
+}
+
+function updateCurrentJournalSidebar() {
+    if (!currentBookData) return;
+    const nameEl = document.getElementById('current-book-name');
+    const coverEl = document.getElementById('current-book-cover');
+    if (nameEl) nameEl.textContent = currentBookData.name;
+    if (coverEl) {
+        const colors = BOOK_COLOR_SCHEMES[currentBookData.colorScheme] || BOOK_COLOR_SCHEMES.classic;
+        coverEl.style.background = colors.bg;
+        coverEl.innerHTML = `<span class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-md" style="background:${colors.spine}"></span>` +
+            renderStickerOverlays(currentBookData.stickers, true);
+    }
+}
+
+async function loadBooks() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const container = document.getElementById('bookshelf-grid');
+    if (!container) return;
+    container.innerHTML = '<div class="text-sm text-slate-400 italic col-span-full">Loading...</div>';
+
+    try {
+        await ensureDefaultBook(user.uid); // no-op if books already exist
+        const snapshot = await db.collection('users').doc(user.uid)
+            .collection('journalBooks').orderBy('createdAt').get();
+        const books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderBookshelfGrid(books);
+    } catch (error) {
+        container.innerHTML = '<div class="text-sm text-red-600 col-span-full">Error loading bookshelf: ' + error.message + '</div>';
+    }
+}
+
+function renderBookshelfGrid(books) {
+    const container = document.getElementById('bookshelf-grid');
+
+    const covers = books.map(book => {
+        const ringShadow = book.id === currentBookId ? '0 0 0 3px white, 0 0 0 6px #0F4C81' : '';
+        return `
+            <div class="flex flex-col items-center">
+                <div onclick="selectBook('${book.id}')"
+                    class="relative w-full aspect-[3/4] rounded-r-2xl rounded-l-md cursor-pointer transition hover:-translate-y-1"
+                    style="${getCoverVisualStyle(book, ringShadow)}">
+                    ${getCoverInnerHTML(book)}
+                </div>
+            </div>`;
+    }).join('');
+
+    const newBookCard = `
+        <div class="flex flex-col items-center">
+            <div onclick="openJournalWizard()"
+                class="w-full aspect-[3/4] rounded-2xl border-2 border-dashed border-slate-300 hover:border-[#0F4C81] cursor-pointer transition flex items-center justify-center text-slate-400 hover:text-[#0F4C81]">
+                <span class="text-3xl">＋</span>
+            </div>
+            <div class="text-center text-sm text-slate-500 mt-2">New Journal</div>
+        </div>`;
+
+    container.innerHTML = covers + newBookCard;
+}
+
+async function selectBook(bookId) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const doc = await db.collection('users').doc(user.uid)
+            .collection('journalBooks').doc(bookId).get();
+        if (!doc.exists) return;
+
+        currentBookId = bookId;
+        currentBookData = { id: bookId, ...doc.data() };
+        currentEntryId = null;
+
+        const textarea = document.getElementById('journal-textarea');
+        const titleEl = document.getElementById('current-entry-title');
+        if (textarea) { textarea.value = ''; textarea.disabled = true; }
+        if (titleEl) titleEl.textContent = 'Select or create an entry';
+
+        updateCurrentJournalSidebar();
+        closeBookshelfPanel();
+    } catch (error) {
+        alert("Error selecting journal: " + error.message);
+    }
+}
+
+// ============================================
+// NEW JOURNAL WIZARD
+// ============================================
+let wizardStep = 1;
+let wizardState = { style: 'leather', colorScheme: 'classic', stickers: [], name: '' };
+
+const WIZARD_STEP_TITLES = {
+    1: 'Choose your notebook',
+    2: 'Color scheme',
+    3: 'Stickers',
+    4: 'Name it'
+};
+
+const WIZARD_STICKER_PALETTE = ['🌱', '🌊', '⭐', '🌙', '🦋', '🌸', '✨', '🔥', '☕', '🎵', '🌈', '🍃'];
+
+function openJournalWizard() {
+    resetWizardState();
+    document.getElementById('journal-wizard-modal').classList.remove('hidden');
+    renderWizardPreview();
+    renderWizardStep();
+}
+
+function closeJournalWizard() {
+    document.getElementById('journal-wizard-modal').classList.add('hidden');
+    resetWizardState();
+}
+
+function resetWizardState() {
+    wizardStep = 1;
+    wizardState = { style: 'leather', colorScheme: 'classic', stickers: [], name: '' };
+}
+
+function renderWizardStep() {
+    document.getElementById('wizard-step-title').textContent = WIZARD_STEP_TITLES[wizardStep];
+
+    const content = document.getElementById('wizard-step-content');
+    if (wizardStep === 1) content.innerHTML = renderWizardStyleStep();
+    else if (wizardStep === 2) content.innerHTML = renderWizardColorStep();
+    else if (wizardStep === 3) content.innerHTML = renderWizardStickerStep();
+    else {
+        content.innerHTML = renderWizardNameStep();
+        // Set via property, not baked into the markup string, so a name
+        // containing a " can't break out of the value="" attribute.
+        document.getElementById('wizard-name-input').value = wizardState.name;
+    }
+
+    updateWizardDots();
+    updateWizardNavButtons();
+}
+
+function updateWizardDots() {
+    for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById('wizard-dot-' + i);
+        if (dot) dot.style.backgroundColor = i <= wizardStep ? '#0F4C81' : '#e2e8f0';
+    }
+}
+
+function updateWizardNavButtons() {
+    document.getElementById('wizard-back-btn').classList.toggle('hidden', wizardStep === 1);
+    document.getElementById('wizard-next-btn').textContent = wizardStep === 4 ? 'Add to Bookshelf' : 'Next';
+}
+
+function wizardBack() {
+    if (wizardStep > 1) {
+        wizardStep--;
+        renderWizardStep();
+    }
+}
+
+function wizardNext() {
+    if (wizardStep < 4) {
+        wizardStep++;
+        renderWizardStep();
+    } else {
+        saveNewJournalBook();
+    }
+}
+
+function renderWizardPreview() {
+    const previewEl = document.getElementById('wizard-preview-cover');
+    if (!previewEl) return;
+    const book = {
+        name: wizardState.name || 'My Journal',
+        colorScheme: wizardState.colorScheme,
+        style: wizardState.style,
+        stickers: wizardState.stickers
+    };
+    previewEl.style.cssText = getCoverVisualStyle(book);
+    previewEl.innerHTML = getCoverInnerHTML(book, true); // removable — click a placed sticker to remove it
+}
+
+function renderWizardStyleStep() {
+    const cards = [
+        { key: 'leather', label: 'Leather' },
+        { key: 'linen', label: 'Linen' },
+        { key: 'kraft', label: 'Kraft' },
+        { key: 'modern', label: 'Modern' }
+    ];
+    return `<div class="grid grid-cols-2 gap-3">` + cards.map(c => {
+        const selected = wizardState.style === c.key;
+        const borderStyle = selected ? 'border-color:#0F4C81;background-color:#EFF6FF;' : 'border-color:#e2e8f0;';
+        return `
+            <button onclick="wizardSelectStyle('${c.key}')" class="rounded-2xl p-4 text-center transition" style="border-width:2px;border-style:solid;${borderStyle}">
+                <div class="w-full h-12 rounded-lg mb-2" style="background:${BOOK_STYLE_TEXTURES[c.key].swatch};border:1px solid rgba(0,0,0,0.08)"></div>
+                <span class="text-sm font-medium text-slate-700">${c.label}</span>
+            </button>`;
+    }).join('') + `</div>`;
+}
+
+function renderWizardColorStep() {
+    const swatches = Object.keys(BOOK_COLOR_SCHEMES).map(key => {
+        const colors = BOOK_COLOR_SCHEMES[key];
+        const selected = wizardState.colorScheme === key;
+        const ringStyle = selected ? 'box-shadow:0 0 0 3px white, 0 0 0 6px #0F4C81;' : '';
+        const label = key.charAt(0).toUpperCase() + key.slice(1);
+        return `<button onclick="wizardSelectColor('${key}')" class="w-14 h-14 rounded-full transition" style="background:${colors.bg};${ringStyle}" title="${label}"></button>`;
+    }).join('');
+    return `<div class="flex justify-center gap-4 flex-wrap py-2">${swatches}</div>`;
+}
+
+function renderWizardStickerStep() {
+    const count = wizardState.stickers.length;
+    const palette = WIZARD_STICKER_PALETTE.map(emoji => {
+        const disabled = count >= 4;
+        const opacity = disabled ? 'opacity:0.3;' : '';
+        return `<button onclick="wizardAddSticker('${emoji}')" ${disabled ? 'disabled' : ''} class="w-11 h-11 rounded-xl border-2 border-slate-200 hover:border-[#0F4C81] flex items-center justify-center text-xl transition" style="${opacity}">${emoji}</button>`;
+    }).join('');
+    return `
+        <div class="text-center text-sm text-slate-500 mb-3">${count}/4 stickers &middot; click a placed sticker on the cover to remove it</div>
+        <div class="flex flex-wrap justify-center gap-2">${palette}</div>
+    `;
+}
+
+function renderWizardNameStep() {
+    return `
+        <input type="text" id="wizard-name-input" placeholder="Name your journal..." maxlength="30"
+            oninput="wizardUpdateName(this.value)"
+            class="w-full px-6 py-4 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#0F4C81] text-lg text-center">
+    `;
+}
+
+function wizardSelectStyle(styleKey) {
+    wizardState.style = styleKey;
+    renderWizardPreview();
+    renderWizardStep();
+}
+
+function wizardSelectColor(colorKey) {
+    wizardState.colorScheme = colorKey;
+    renderWizardPreview();
+    renderWizardStep();
+}
+
+function wizardAddSticker(emoji) {
+    if (wizardState.stickers.length >= 4) return;
+    wizardState.stickers.push(emoji);
+    renderWizardPreview();
+    renderWizardStep();
+}
+
+function wizardRemoveSticker(index) {
+    wizardState.stickers.splice(index, 1);
+    renderWizardPreview();
+    if (wizardStep === 3) renderWizardStep();
+}
+
+function wizardUpdateName(value) {
+    wizardState.name = value;
+    renderWizardPreview();
+}
+
+async function saveNewJournalBook() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const name = wizardState.name.trim().slice(0, 30);
+    if (!name) {
+        alert("Please name your journal.");
+        return;
+    }
+
+    const newBook = {
+        name: name,
+        colorScheme: wizardState.colorScheme,
+        style: wizardState.style,
+        stickers: wizardState.stickers,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        const docRef = await db.collection('users').doc(user.uid).collection('journalBooks').add(newBook);
+
+        currentBookId = docRef.id;
+        currentBookData = { id: docRef.id, ...newBook };
+        updateCurrentJournalSidebar();
+
+        closeJournalWizard();
+        loadBooks(); // re-render the grid — the new cover shows selected since currentBookId now matches
+    } catch (error) {
+        alert("Error creating journal: " + error.message);
+    }
+}
+
+function showBookshelf() {
+    showJournal();
+    document.getElementById('notebook-container').classList.add('hidden');
+    document.getElementById('open-notebook').classList.add('hidden');
+    document.getElementById('bookshelf-panel-view').classList.remove('hidden');
+    loadBooks();
+}
+
+function closeBookshelfPanel() {
+    document.getElementById('bookshelf-panel-view').classList.add('hidden');
+    document.getElementById('notebook-container').classList.remove('hidden');
+}
 
 // ============================================
 // PROMPTS
@@ -769,8 +1697,20 @@ function updateAvatar(nickname) {
 async function loadUserProfile(user) {
     try {
         const doc = await db.collection('profiles').doc(user.uid).get();
-        const nickname = doc.exists ? doc.data().nickname : null;
+        const data = doc.exists ? doc.data() : {};
 
+        currentJournalTheme = data.journalTheme || 'parchment';
+        currentJournalGraphic = data.journalGraphic || '';
+        applyJournalTheme(currentJournalTheme, currentJournalGraphic);
+
+        const defaultBook = await ensureDefaultBook(user.uid);
+        if (defaultBook) {
+            currentBookId = defaultBook.id;
+            currentBookData = defaultBook;
+            updateCurrentJournalSidebar();
+        }
+
+        const nickname = data.nickname || null;
         if (nickname) {
             currentNickname = nickname;
             updateDisplayName(nickname);
