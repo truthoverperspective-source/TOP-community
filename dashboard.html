@@ -569,20 +569,21 @@
             </div>
 
             <!-- Beta Features Content -->
-            <div id="beta-content" class="hidden h-full overflow-auto">
-                <div class="min-h-full bg-slate-950 -m-8 p-6 text-slate-200">
+            <div id="beta-content"
+                class="hidden -m-8 w-[calc(100%_+_4rem)] h-[calc(100%_+_4rem)] overflow-y-auto overflow-x-hidden bg-slate-950 text-slate-200">
+                <div class="p-6">
 
                     <!-- Header -->
                     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                        <div>
+                        <div class="min-w-0">
                             <h1 class="text-2xl font-bold text-slate-100 tracking-wide">HEALTH INTELLIGENCE</h1>
-                            <p class="mt-1 font-mono text-xs text-slate-400 flex items-center gap-2">
-                                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <span id="beta-sync-status">SYNCED 2 MIN AGO — FITBIT CHARGE 6</span>
+                            <p class="mt-1 font-mono text-xs text-slate-400 flex items-center gap-2 flex-wrap">
+                                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                                <span id="beta-sync-status" class="break-words">SYNCED 2 MIN AGO — FITBIT CHARGE 6</span>
                             </p>
                         </div>
                         <select id="beta-device-select" onchange="updateBetaDeviceLabel(this.value)"
-                            class="bg-slate-900 border border-slate-700/50 rounded-lg px-3 py-2 text-xs font-mono uppercase tracking-widest text-slate-300 focus:outline-none focus:border-cyan-500">
+                            class="bg-slate-900 border border-slate-700/50 rounded-lg px-3 py-2 text-xs font-mono uppercase tracking-widest text-slate-300 focus:outline-none focus:border-cyan-500 shrink-0">
                             <option value="Fitbit Charge 6">Fitbit Charge 6</option>
                             <option value="Apple Health">Apple Health</option>
                             <option value="Garmin">Garmin</option>
@@ -593,93 +594,93 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
                         <!-- SLEEP (largest) -->
-                        <div class="md:col-span-2 md:row-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
-                            <div class="flex items-center justify-between mb-3">
+                        <div class="min-w-0 md:col-span-2 md:row-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
+                            <div class="flex items-center justify-between gap-2 mb-3">
                                 <span class="text-xs uppercase tracking-widest text-slate-400">Sleep</span>
                                 <span class="text-xs uppercase tracking-widest text-slate-600">Last Night</span>
                             </div>
-                            <div class="flex items-end gap-3 mb-4">
+                            <div class="flex items-end flex-wrap gap-3 mb-4">
                                 <span id="beta-sleep-hours" class="font-mono text-4xl text-cyan-400">--</span>
                                 <span id="beta-sleep-delta"></span>
                             </div>
                             <div id="beta-sleep-stage-bar" class="mb-5"></div>
-                            <div class="text-[10px] uppercase tracking-widest text-slate-500 mb-1">30-Day Trend</div>
+                            <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-1">30-Day Trend</div>
                             <div id="beta-sleep-chart"></div>
                         </div>
 
                         <!-- MOVEMENT -->
-                        <div class="md:col-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
+                        <div class="min-w-0 md:col-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
                             <span class="text-xs uppercase tracking-widest text-slate-400">Movement</span>
-                            <div class="flex items-end gap-4 mt-2 mb-3">
-                                <div>
+                            <div class="flex items-end flex-wrap gap-4 mt-2 mb-3">
+                                <div class="min-w-0">
                                     <div id="beta-steps-today" class="font-mono text-3xl text-cyan-400">--</div>
-                                    <div id="beta-steps-avg" class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-0.5">-- avg/7d</div>
+                                    <div id="beta-steps-avg" class="text-[10px] font-mono text-slate-500 uppercase tracking-wide mt-0.5">-- avg/7d</div>
                                 </div>
-                                <div class="ml-auto text-right">
-                                    <div class="flex items-center gap-2 justify-end">
+                                <div class="min-w-0 ml-auto text-right">
+                                    <div class="flex items-center flex-wrap gap-2 justify-end">
                                         <span id="beta-active-minutes" class="font-mono text-lg text-teal-400">--</span>
                                         <span id="beta-active-delta"></span>
                                     </div>
-                                    <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">active</div>
+                                    <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wide">active</div>
                                 </div>
                             </div>
-                            <div class="text-[10px] uppercase tracking-widest text-slate-500 mb-1">14-Day Steps</div>
+                            <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-1">14-Day Steps</div>
                             <div id="beta-steps-chart"></div>
                         </div>
 
                         <!-- RECOVERY / STRESS -->
-                        <div class="md:col-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
+                        <div class="min-w-0 md:col-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
                             <span class="text-xs uppercase tracking-widest text-slate-400">Recovery / Stress</span>
                             <div class="grid grid-cols-2 gap-3 mt-3">
-                                <div class="bg-slate-950/60 border border-slate-800 rounded-lg p-3">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="text-[10px] uppercase tracking-widest text-slate-500">Resting HR</span>
+                                <div class="min-w-0 bg-slate-950/60 border border-slate-800 rounded-lg p-3">
+                                    <span class="block text-[10px] uppercase tracking-wide text-slate-500 truncate">Resting HR</span>
+                                    <div class="flex items-baseline flex-wrap gap-x-2 mt-1">
+                                        <div id="beta-rhr-value" class="font-mono text-2xl text-teal-400">--</div>
                                         <span id="beta-rhr-trend"></span>
                                     </div>
-                                    <div id="beta-rhr-value" class="font-mono text-2xl text-teal-400">--</div>
                                     <div id="beta-rhr-chart" class="mt-1"></div>
                                 </div>
-                                <div class="bg-slate-950/60 border border-slate-800 rounded-lg p-3">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="text-[10px] uppercase tracking-widest text-slate-500">HRV</span>
+                                <div class="min-w-0 bg-slate-950/60 border border-slate-800 rounded-lg p-3">
+                                    <span class="block text-[10px] uppercase tracking-wide text-slate-500 truncate">HRV</span>
+                                    <div class="flex items-baseline flex-wrap gap-x-2 mt-1">
+                                        <div id="beta-hrv-value" class="font-mono text-2xl text-fuchsia-400">--</div>
                                         <span id="beta-hrv-trend"></span>
                                     </div>
-                                    <div id="beta-hrv-value" class="font-mono text-2xl text-fuchsia-400">--</div>
                                     <div id="beta-hrv-chart" class="mt-1"></div>
                                 </div>
                             </div>
-                            <p class="text-[10px] font-mono text-slate-600 uppercase tracking-widest mt-2">Trend view — not diagnostic</p>
+                            <p class="text-[10px] font-mono text-slate-600 uppercase tracking-wide mt-2">Trend view — not diagnostic</p>
                         </div>
 
                         <!-- NOURISHMENT -->
-                        <div class="md:col-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
+                        <div class="min-w-0 md:col-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
                             <span class="text-xs uppercase tracking-widest text-slate-400">Nourishment</span>
                             <div id="beta-water-value" class="font-mono text-xl text-cyan-400 mt-2 mb-1">-- / 80OZ</div>
                             <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden mb-3">
                                 <div id="beta-water-bar" class="h-full bg-cyan-400 rounded-full transition-all" style="width:0%"></div>
                             </div>
-                            <div class="text-[10px] uppercase tracking-widest text-slate-500 mb-1">7-Day Hydration</div>
+                            <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-1">7-Day Hydration</div>
                             <div id="beta-water-chart"></div>
-                            <p class="text-[10px] font-mono text-slate-600 uppercase tracking-widest mt-3">Food logging not connected</p>
+                            <p class="text-[10px] font-mono text-slate-600 uppercase tracking-wide mt-3">Food logging not connected</p>
                         </div>
 
                         <!-- CONNECTION & MIND -->
-                        <div class="md:col-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
+                        <div class="min-w-0 md:col-span-2 bg-slate-900 border border-slate-700/50 rounded-xl p-4 hover:shadow-[0_0_20px_-5px_rgba(34,211,238,0.35)] transition-shadow">
                             <span class="text-xs uppercase tracking-widest text-slate-400">Connection & Mind</span>
                             <div class="mt-2">
                                 <div id="beta-mindful-total" class="font-mono text-2xl text-teal-400">--</div>
-                                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">mindful min / 7d</div>
+                                <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wide">mindful min / 7d</div>
                             </div>
                             <div class="mt-4 pt-3 border-t border-slate-800">
-                                <div id="beta-social-checkins" class="font-mono text-lg text-fuchsia-400">--/7 SOCIAL CHECK-INS</div>
-                                <div class="text-[10px] font-mono text-slate-600 uppercase tracking-widest mt-1">self-reported</div>
+                                <div id="beta-social-checkins" class="font-mono text-lg text-fuchsia-400 break-words">--/7 SOCIAL CHECK-INS</div>
+                                <div class="text-[10px] font-mono text-slate-600 uppercase tracking-wide mt-1">self-reported</div>
                             </div>
                         </div>
 
                         <!-- INSIGHT ENGINE (signature card) -->
-                        <div class="md:col-span-4 bg-slate-900 border border-cyan-700/40 rounded-xl p-5 shadow-[0_0_25px_-8px_rgba(34,211,238,0.5)]">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                        <div class="min-w-0 md:col-span-4 bg-slate-900 border border-cyan-700/40 rounded-xl p-5 shadow-[0_0_25px_-8px_rgba(34,211,238,0.5)]">
+                            <div class="flex items-center flex-wrap gap-2 mb-3">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0"></span>
                                 <span class="text-xs uppercase tracking-widest text-cyan-400 font-semibold">⚡ Insight Engine</span>
                             </div>
                             <div id="beta-insight-body" class="text-sm text-slate-400 font-mono">Analyzing...</div>
